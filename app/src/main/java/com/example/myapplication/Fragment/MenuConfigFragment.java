@@ -34,6 +34,9 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.example.myapplication.Dialog.WindowCrudDialogFragment;
 import com.example.myapplication.Dialog.DishCrudDialogFragment;
 
+import android.text.Editable; // 导入
+import android.text.TextWatcher; // 导入
+import android.widget.EditText; // 导入
 import java.util.List;
 
 public class MenuConfigFragment extends Fragment implements CanteenAdapter.OnCanteenClickListener, WindowAdapter.OnWindowClickListener,
@@ -77,6 +80,8 @@ public class MenuConfigFragment extends Fragment implements CanteenAdapter.OnCan
     private WindowDao windowDao;
     private DishDao dishDao;
 
+    private EditText etSearch; // 【新增】搜索输入框
+
     private enum DisplayMode { CANTEEN, WINDOW, DISH }
     private DisplayMode currentMode = DisplayMode.CANTEEN;
 
@@ -93,6 +98,8 @@ public class MenuConfigFragment extends Fragment implements CanteenAdapter.OnCan
         btnDish = view.findViewById(R.id.btn_dish_mode);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        etSearch = view.findViewById(R.id.et_search_query);
 
         // 实例化 DAO
         canteenDao = CarteenDatabase.getDatabase(getContext()).canteenDao();
@@ -111,6 +118,21 @@ public class MenuConfigFragment extends Fragment implements CanteenAdapter.OnCan
         btnDish.setOnClickListener(v -> switchMode(DisplayMode.DISH));
 
         fabAdd.setOnClickListener(v -> handleAddItem());
+        etSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                // 每次文本变化时，只在当前模式为 CANTEEN 时执行搜索
+                if (currentMode == DisplayMode.CANTEEN) {
+                    updateList();
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
     }
 
     private void switchMode(DisplayMode mode) {
@@ -118,7 +140,19 @@ public class MenuConfigFragment extends Fragment implements CanteenAdapter.OnCan
 
         // 【新增或修改】：在切换模式时，更新按钮样式
         updateButtonStyles();
-
+        // 切换模式时，清空搜索框
+        if (etSearch != null) {
+            etSearch.setText("");
+            // 提示用户当前搜索目标
+            if (mode == DisplayMode.CANTEEN) {
+                etSearch.setHint("搜索食堂名称或位置...");
+                etSearch.setVisibility(View.VISIBLE);
+            } else {
+                // 可以在非食堂模式下隐藏搜索框，或更改提示
+                etSearch.setHint("请切换到食堂模式搜索");
+                // etSearch.setVisibility(View.GONE); // 如果只想在食堂模式下显示
+            }
+        }
         // 刷新列表
         updateList();
     }
@@ -151,20 +185,37 @@ public class MenuConfigFragment extends Fragment implements CanteenAdapter.OnCan
      * 根据当前模式加载数据和适配器
      */
     private void updateList() {
+        final String currentQuery = etSearch.getText().toString().trim();
+
         switch (currentMode) {
             case CANTEEN:
-                List<Canteen> canteens = canteenDao.getAllCanteens();
+                // 在后台线程执行查询操作，避免 ANR
+                new Thread(() -> {
+                    List<Canteen> canteens;
 
-                // 【新增日志】: 检查查询到的食堂数量
-                Log.d("MenuConfig", "查询到的食堂数量: " + canteens.size());
+                    if (currentQuery.isEmpty()) {
+                        // 搜索关键词为空，加载全部食堂
+                        canteens = canteenDao.getAllCanteens();
+                        Log.d("MenuConfig", "加载全部食堂，数量: " + canteens.size());
+                    } else {
+                        // 搜索关键词不为空，执行模糊查询
+                        // Room SQL 需要手动添加 %
+                        String searchQuery = "%" + currentQuery + "%";
+                        canteens = canteenDao.searchCanteens(searchQuery);
+                        Log.d("MenuConfig", "搜索 [" + currentQuery + "]，结果数量: " + canteens.size());
+                    }
 
-                // 检查 Adapter 是否在运行
-                if (canteens.isEmpty()) {
-                    Log.d("MenuConfig", "食堂列表为空，RecyclerView将为空白。");
-                }
-
-                recyclerView.setAdapter(new CanteenAdapter(canteens, this));
-                // ...
+                    // 切换回主线程更新 UI
+                    if (getActivity() != null) {
+                        List<Canteen> finalCanteens = canteens; // 变量必须是 final 或 effectively final
+                        getActivity().runOnUiThread(() -> {
+                            // 检查 Fragment 状态
+                            if (isAdded()) {
+                                recyclerView.setAdapter(new CanteenAdapter(finalCanteens, this));
+                            }
+                        });
+                    }
+                }).start();
                 break;
             case WINDOW:
                 // 1. 获取数据 (假设 WindowDao.getAllWindows() 存在)

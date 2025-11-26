@@ -45,4 +45,7 @@ public interface CanteenDao {
      */
     @Query("SELECT * FROM canteen_table WHERE canteenId = :id LIMIT 1")
     Canteen getCanteenById(int id);
+
+    @Query("SELECT * FROM canteen_table WHERE name LIKE :query OR location LIKE :query ORDER BY canteenId ASC")
+    List<Canteen> searchCanteens(String query);
 }
