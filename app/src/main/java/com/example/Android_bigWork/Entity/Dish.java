@@ -3,6 +3,8 @@ package com.example.Android_bigWork.Entity;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+import java.io.Serializable;
+
 /**
  * @author Bubu
  * @Type Dish
@@ -10,7 +12,7 @@ import androidx.room.PrimaryKey;
  * @date 2022/10/13 20:11
  */
 @Entity(tableName = "dish_table")
-public class Dish {     // 菜品类
+public class Dish implements Serializable {     // 菜品类
     @PrimaryKey
     private int GID;    // 菜品在菜单上的唯一编号
     private String name;    // 菜品名

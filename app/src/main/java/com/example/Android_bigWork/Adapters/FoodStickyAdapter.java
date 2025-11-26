@@ -33,6 +33,15 @@ import java.util.Objects;
 
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 
+import android.app.Activity; // 导入 Activity
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity; // 导入 AppCompatActivity
+import com.example.Android_bigWork.Fragments.DishDetailFragment; // 导入详情 Fragment
+import com.example.Android_bigWork.Entity.Dish; // 导入 Dish
+
 /**
  * @Type FoodStickyAdapter
  * @Desc 用于菜品显示的适配器
@@ -170,186 +179,29 @@ public class FoodStickyAdapter extends BaseAdapter implements StickyListHeadersA
         return convertView;
     }
 
-    private PopupWindow showDishDetail(Dish dish) {
-        Log.d(TAG, "showDishDetail: dish.count="+dish.getCount());
-        View contentView = LayoutInflater.from(context).inflate(R.layout.popupwindow_dish_detail, null, false);
-        // 创建弹窗
-        PopupWindow dishDetail = new PopupWindow(contentView,
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
-        // 取得焦点
-        dishDetail.setFocusable(true);
-        //注意：要是点击外部空白处弹框消息  那么必须给弹框设置一个背景色  不然是不起作用的
-//        dishDetail.setBackgroundDrawable(new ColorDrawable(Color.WHITE));
-        //点击外部消失
-        dishDetail.setOutsideTouchable(true);
-        //设置可以点击
-        dishDetail.setTouchable(true);
-        //设置进入退出的动画
-        dishDetail.setAnimationStyle(R.style.dishDetail_anim_style);
-        // 绑定视图
-        TextView desc = contentView.findViewById(R.id.dish_desctiption);
-        TextView name = contentView.findViewById(R.id.dish_name);
-        TextView price = contentView.findViewById(R.id.dish_price);
-        TextView count= contentView.findViewById(R.id.dish_count);
-        ImageView img = contentView.findViewById(R.id.dish_img);
-        ImageButton add = contentView.findViewById(R.id.dish_add);
-        ImageButton sub = contentView.findViewById(R.id.dish_sub);
-        ViewStub spicyOption = contentView.findViewById(R.id.spicy_option);
-        ViewStub sweetOption = contentView.findViewById(R.id.sweet_option);
+    /**
+     * 【修改后的新逻辑】: 启动 DishDetailFragment 来显示详情/点餐/评论
+     *
+     * @param dish
+     * @return void (不再返回 PopupWindow)
+     */
+    private void showDishDetail(Dish dish) { // 【注意】: 返回类型从 PopupWindow 变更为 void
+        // Context 转换成 Activity 以获取 FragmentManager
+        if (context instanceof AppCompatActivity) {
+            // 1. 创建新的 DialogFragment 实例
+            DishDetailFragment detailFragment = DishDetailFragment.newInstance(dish);
 
-        // 设置组件内容、事件
-        desc.setText(dish.getDescription());
-        name.setText(dish.getName());
-        price.setText(String.valueOf(dish.getPrice()));
-        count.setText(String.valueOf(dish.getCount()));
-        img.setImageResource(resources.getIdentifier("dish_" + dish.getGID(), "drawable", "com.example.Android_bigWork"));
-        // 辣度和甜度
-        final int[] spicy = {0};
-        final int[] sweet = {0};
-        final String[] spicyStr = {getRString(R.string.defaultValue)};
-        final String[] sweetStr = {getRString(R.string.defaultValue)};
-        // 判断是否显示口味选项
-        // 若有辣度选项，展开辣度单选题
-        if (dish.isSpicy()) {
-            try {
-                View v = spicyOption.inflate();
-                RadioGroup spicyRadioGroup = v.findViewById(R.id.spicy_RadioGroup);
-                // 默认选择不辣
-                spicy[0] = 1;
-                spicyStr[0] = getRString(R.string.spicy_1);
-                // 设置单选框监听器
-                spicyRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-                    @Override
-                    public void onCheckedChanged(RadioGroup group, int checkedId) {
-                        switch (checkedId) {
-                            case R.id.RadioButton1:
-                                spicy[0] = 1;
-                                spicyStr[0] = getRString(R.string.spicy_1);
-                                break;
-                            case R.id.RadioButton2:
-                                spicy[0] = 2;
-                                spicyStr[0] = getRString(R.string.spicy_2);
-                                break;
-                            case R.id.RadioButton3:
-                                spicy[0] = 3;
-                                spicyStr[0] = getRString(R.string.spicy_3);
-                                break;
-                            case R.id.RadioButton4:
-                                spicy[0] = 4;
-                                spicyStr[0] = getRString(R.string.spicy_4);
-                                break;
-                            default:
-                                break;
-                        }
+            // 2. 设置为底部弹出样式（可选，但通常 DialogFragment 更灵活）
+            // detailFragment.setStyle(DialogFragment.STYLE_NORMAL, R.style.BottomSheetDialogTheme);
 
-                    }
-                });
-            } catch (Exception e) {
-                spicyOption.setVisibility(View.VISIBLE);
-            }
+            // 3. 显示底部弹出对话框
+            detailFragment.show(
+                    ((AppCompatActivity) context).getSupportFragmentManager(),
+                    "DishDetailDialog"
+            );
+        } else {
+            Toast.makeText(context, "无法打开详情页", Toast.LENGTH_SHORT).show();
         }
-        // 若有甜度选项，展开甜度单选题
-        if (dish.isSweet()) {
-            try {
-                View v = sweetOption.inflate();
-                RadioGroup sweetRadioGroup = v.findViewById(R.id.sweet_RadioGroup);
-                // 默认0分甜
-                sweet[0] = 1;
-                sweetStr[0] = getRString(R.string.sweet_1);
-                // 设置单选框监听器
-                sweetRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-                    @Override
-                    public void onCheckedChanged(RadioGroup group, int checkedId) {
-                        switch (checkedId) {
-                            case R.id.RadioButton1:
-                                sweet[0] = 1;
-                                sweetStr[0] = getRString(R.string.sweet_1);
-                                break;
-                            case R.id.RadioButton2:
-                                sweet[0] = 2;
-                                sweetStr[0] = getRString(R.string.sweet_2);
-                                break;
-                            case R.id.RadioButton3:
-                                sweet[0] = 3;
-                                sweetStr[0] = getRString(R.string.sweet_3);
-                                break;
-                            case R.id.RadioButton4:
-                                sweet[0] = 4;
-                                sweetStr[0] = getRString(R.string.sweet_4);
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                });
-            } catch (Exception e) {
-                sweetOption.setVisibility(View.VISIBLE);
-            }
-        }
-        // detail加号点击事件
-        add.setOnClickListener(v -> {
-            Log.d(TAG, "showDishDetail: add clicked");
-            // 将自定义口味拼接为一个字符串
-            ArrayList<String> customList=new ArrayList<>();
-            if(spicy[0]>0 ){
-                if(!Objects.equals(spicyStr[0], getRString(R.string.defaultValue))){
-                    customList.add(spicyStr[0]);
-                    Log.d(TAG, "add value: "+spicyStr[0]);
-
-                }else {
-                    customList.add(getRString(R.string.defaultValue));
-                    Log.d(TAG, "add default: ");
-                }
-            }
-            if(sweet[0]>0 ){
-                if(!Objects.equals(sweetStr[0], getRString(R.string.defaultValue))){
-                    customList.add(sweetStr[0]);
-                    Log.d(TAG, "add value: "+sweetStr[0]);
-
-                }else {
-                    customList.add(getRString(R.string.defaultValue));
-                    Log.d(TAG, "add default: ");
-
-                }
-            }
-            String customText= StringUtil.join(customList,",");
-            // 数据层上，将菜加入购物车
-            addDishToShoppingCar(dish, spicy[0], sweet[0], customText);
-            dish.setCount(dish.getCount() + 1);
-//            TextView count_add = contentView.findViewById(R.id.dish_count);
-            count.setText(String.valueOf(dish.getCount()));
-            dishMenuFragment.updateShoppingCarAccount();
-            notifyDataSetChanged();
-            // 点击加号后，新建一个弹窗作为动画
-            PopupWindow temp= showDishDetail(dish);
-            new Handler().postDelayed(() -> {
-                Log.d(TAG, "run: delay dismiss");
-                temp.dismiss();
-            }, 300);
-        });
-        // detail减号点击事件
-        sub.setOnClickListener(v -> {
-            Log.d(TAG, "showDishDetail: dishCount="+dish.getCount());
-            if (dish.getCount() == 1) {
-                // 数据层-1
-                dish.setCount(dish.getCount() - 1);
-                // 视图层-1
-//                TextView count_sub = contentView.findViewById(R.id.dish_count);
-                count.setText(String.valueOf(dish.getCount()));
-                // 从购物车中移除
-                removeSingleDishFromShoppingCar(dish);
-                // 通知视图改变
-                notifyDataSetChanged();
-            }
-            if (dish.getCount() > 1) {
-                dishDetail.dismiss();
-                dishMenuFragment.showShoppingCar();
-            }
-        });
-        // 显示
-        dishDetail.showAtLocation(contentView, Gravity.CENTER, 0, 0);
-return dishDetail;
     }
 
     private void removeSingleDishFromShoppingCar(Dish dish) {

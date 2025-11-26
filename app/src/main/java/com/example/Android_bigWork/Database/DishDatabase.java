@@ -6,9 +6,10 @@ import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
+import com.example.Android_bigWork.Entity.Comment;
 import com.example.Android_bigWork.Entity.Dish;
 
-@Database(entities = {Dish.class}, version = 2, exportSchema = false)
+@Database(entities = {Dish.class, Comment.class}, version = 3, exportSchema = false)
 public abstract class DishDatabase extends RoomDatabase {
     private static final String DB_NAME = "dish.db";
     private static DishDatabase INSTANCE;
@@ -35,7 +36,7 @@ public abstract class DishDatabase extends RoomDatabase {
     }
 
     public abstract DishDao getDishDao();
-
+    public abstract CommentDao getCommentDao();
 
 }
 

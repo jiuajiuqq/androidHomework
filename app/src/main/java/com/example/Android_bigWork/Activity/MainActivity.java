@@ -173,5 +173,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+    public Person getUser() {
+        return user;
+    }
 
 }
