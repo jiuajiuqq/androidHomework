@@ -35,7 +35,16 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.util.List;
 
 public class MenuConfigFragment extends Fragment implements CanteenAdapter.OnCanteenClickListener, WindowAdapter.OnWindowClickListener,
-        DishAdapter.OnDishClickListener{
+        DishAdapter.OnDishClickListener ,
+        CanteenCrudDialogFragment.CanteenCrudListener {
+
+    @Override
+    public void onOperationComplete() {
+        // 确保在 Fragment 附加到 Activity时执行
+        if (isAdded()) {
+            updateList(); // <--- 关键调用
+        }
+    }
 
     @Override
     public void onDishClick(Dish dish) {
@@ -115,8 +124,10 @@ public class MenuConfigFragment extends Fragment implements CanteenAdapter.OnCan
         String itemType = "";
         switch (currentMode) {
             case CANTEEN:
-                itemType = "食堂";
-                break;
+                CanteenCrudDialogFragment dialog = CanteenCrudDialogFragment.newInstance(null);
+                dialog.setTargetFragment(this, 0); // 设置回调目标
+                dialog.show(getParentFragmentManager(), CanteenCrudDialogFragment.TAG);
+                return;
             case WINDOW:
                 itemType = "窗口";
                 break;
@@ -174,16 +185,20 @@ public class MenuConfigFragment extends Fragment implements CanteenAdapter.OnCan
         // TODO: 在这里实现具体的增删改查 Dialog 逻辑。
         //       你需要根据 itemType 和 itemData 是否为空，判断是执行新增还是编辑/删除操作。
 
-        if (itemData == null) {
-            // 新增操作
-            Toast.makeText(getContext(), "弹出新增 " + itemType + " 的对话框", Toast.LENGTH_SHORT).show();
-            // 接下来可以创建并显示一个用于输入数据的 AlertDialog 或 FragmentDialog
+        if (itemType.equals("食堂") && itemData instanceof Canteen) {
+            // 【编辑食堂】
+            Canteen canteen = (Canteen) itemData;
+            CanteenCrudDialogFragment dialog = CanteenCrudDialogFragment.newInstance(canteen);
+            dialog.setTargetFragment(this, 0); // 设置回调目标
+            dialog.show(getParentFragmentManager(), CanteenCrudDialogFragment.TAG);
         } else {
-            // 编辑或删除操作 (例如：点击了 Canteen 列表项)
-            Toast.makeText(getContext(), "弹出编辑/删除 " + itemType + " 的对话框", Toast.LENGTH_SHORT).show();
-            // 接下来可以创建一个 Dialog，预填入 itemData 的信息，并提供保存和删除按钮
+            // 针对其他类型的默认 toast 提示 (可删除或保留)
+            if (itemData == null) {
+                Toast.makeText(getContext(), "弹出新增 " + itemType + " 的对话框", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(getContext(), "弹出编辑/删除 " + itemType + " 的对话框", Toast.LENGTH_SHORT).show();
+            }
         }
-
         // 【重要】数据库操作成功后，记得调用 updateList() 刷新界面。
     }
     private void updateButtonStyles() {
