@@ -1,103 +1,87 @@
-<?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginHorizontal="4dp"
-    android:layout_marginVertical="6dp"
+    android:layout_margin="8dp"
     app:cardCornerRadius="8dp"
-    app:cardElevation="2dp">
+    app:cardElevation="4dp"> <LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/tv_dish_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/black"
+        android:text="菜品名称" />
+
+    <TextView
+        android:id="@+id/tv_window_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:textColor="@android:color/darker_gray"
+        android:layout_marginBottom="12dp"
+        android:text="所属窗口信息" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="12dp">
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
 
         <TextView
-            android:id="@+id/tv_dish_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="@android:color/black"
-            android:text="红烧牛肉面 (特色面食窗口)" />
-
-        <TextView
-            android:id="@+id/tv_dish_id"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="12sp"
-            android:textColor="@android:color/darker_gray"
-            android:layout_marginBottom="8dp"
-            android:text="ID: 1001" />
+            android:text="价格(¥):"
+            android:layout_marginEnd="4dp"/>
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <EditText
+            android:id="@+id/et_adjust_price"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_weight="1"
+            android:inputType="numberDecimal"
+            android:hint="当日价格"
+            android:paddingStart="8dp"
+            android:layout_marginEnd="16dp"
+            android:maxLines="1"
+            android:background="@drawable/edit_text_border"
+            android:minHeight="40dp"/>
 
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginEnd="8dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="价格 (¥):"
-                    android:textSize="14sp"
-                    android:layout_marginEnd="4dp"/>
-
-                <EditText
-                    android:id="@+id/et_price_adjust"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="numberDecimal"
-                    android:minWidth="60dp"
-                    android:padding="4dp"
-                    android:background="@drawable/edittext_border"
-                    android:hint="15.00"/>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginStart="8dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="余量 (份):"
-                    android:textSize="14sp"
-                    android:layout_marginEnd="4dp"/>
-
-                <EditText
-                    android:id="@+id/et_quantity_adjust"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="number"
-                    android:minWidth="60dp"
-                    android:padding="4dp"
-                    android:background="@drawable/edittext_border"
-                    android:hint="50"/>
-            </LinearLayout>
-        </LinearLayout>
-
-        <Button
-            android:id="@+id/btn_save_adjustment"
-            android:layout_width="match_parent"
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="保存调整"
-            android:backgroundTint="#C00000"/>
+            android:text="余量:"
+            android:layout_marginEnd="4dp"/>
+
+        <EditText
+            android:id="@+id/et_adjust_stock"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:inputType="numberSigned"
+            android:hint="剩余库存"
+            android:paddingStart="8dp"
+            android:maxLines="1"
+            android:background="@drawable/edit_text_border"
+            android:minHeight="40dp"/>
 
     </LinearLayout>
+
+    <Button
+        android:id="@+id/btn_save_adjustment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="保存调整"
+        android:textColor="@android:color/white"
+        android:backgroundTint="#C00000" />
+
+</LinearLayout>
 </androidx.cardview.widget.CardView>

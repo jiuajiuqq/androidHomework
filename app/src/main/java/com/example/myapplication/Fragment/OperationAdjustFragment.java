@@ -1,6 +1,9 @@
 package com.example.myapplication.Fragment;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,23 +15,21 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.myapplication.Adapter.AdjustAdapter;
 import com.example.myapplication.DataBase.DishDao;
 import com.example.myapplication.DataBase.DishDatabase;
 import com.example.myapplication.Entity.Dish;
 import com.example.myapplication.R;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
-public class OperationAdjustFragment extends Fragment {
+// 实现简化的 Adapter 接口
+public class OperationAdjustFragment extends Fragment implements AdjustAdapter.AdjustmentSaveListener {
 
     private RecyclerView recyclerView;
     private DishDao dishDao;
 
-    // 用于操作 Stock 表的关键信息
-    private final String todayDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+    // 由于不再使用 Stock，可以移除 todayDate 和 timeSlot 相关的字段
 
     @Nullable
     @Override
@@ -40,46 +41,67 @@ public class OperationAdjustFragment extends Fragment {
 
         // 实例化 DAO
         dishDao = DishDatabase.getDatabase(getContext()).dishDao();
-        // stockDao = ... // 假设 StockDao 的实例化方式
+        // 移除 StockDao 实例化
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        loadDishAndStockData();
+        loadDishData(); // 方法名改为 loadDishData
 
         return view;
     }
 
     /**
-     * 加载菜品列表，并获取或创建今日的库存记录
+     * 加载菜品列表 (后台线程)
      */
-    private void loadDishAndStockData() {
-        List<Dish> allDishes = dishDao.getAllDish();
+    private void loadDishData() {
+        new Thread(() -> {
+            // 使用 DishDao 获取所有菜品
+            List<Dish> allDishes = dishDao.getAllDishes();
 
-        // TODO: 创建一个 DishWithStockModel，包含菜品信息和当日库存信息
-        // List<DishWithStock> dataList = new ArrayList<>();
-        // for (Dish dish : allDishes) { /* 获取 Stock 数据并添加到 dataList */ }
-
-        // TODO: 设置 AdjustAdapter，Adapter 中的 ViewHolder 应该包含 EditText 和监听器
-        // recyclerView.setAdapter(new AdjustAdapter(dataList, this::handleAdjustmentSave));
-        Toast.makeText(getContext(), "加载了 " + allDishes.size() + " 个菜品进行调整", Toast.LENGTH_SHORT).show();
+            // 切换回主线程更新 UI
+            new Handler(Looper.getMainLooper()).post(() -> {
+                if (isAdded()) {
+                    // 直接使用 Dish 列表实例化 Adapter，并传入 this 作为回调监听器
+                    recyclerView.setAdapter(new AdjustAdapter(allDishes, this));
+                    Toast.makeText(getContext(), "加载了 " + allDishes.size() + " 个菜品进行调整", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }).start();
     }
 
     /**
-     * 处理价格或余量调整保存操作
+     * 处理价格或余量调整保存操作（在后台线程执行数据库更新）
      */
-    public void handleAdjustmentSave(Dish dish, double newPrice, int newRemainingQuantity) {
-        // 1. 更新 Dish 的基础价格
-        dish.price = newPrice;
-        dishDao.update(dish);
+    @Override // 实现 Adapter 的接口方法
+    public void onSave(Dish dish, double newPrice, int newRemainingQuantity) {
+        // 数据库操作必须在后台线程执行
+        new Thread(() -> {
+            try {
+                // 1. 更新 Dish 对象的字段
+                dish.price = newPrice;
+                dish.remainingStock = newRemainingQuantity;
 
-        // 2. 更新 Stock 的余量和价格
-        // Stock stock = stockDao.getStockByDishAndTime(dish.dishId, todayDate, "午餐"); // 假设时间段为午餐
-        // if (stock != null) {
-        //     stock.price = newPrice;
-        //     stock.remainingQuantity = newRemainingQuantity;
-        //     stockDao.update(stock);
-        // } else { /* 创建新的 Stock 记录 */ }
+                // 2. 执行数据库更新
+                dishDao.update(dish);
 
-        Toast.makeText(getContext(), "已保存 " + dish.name + " 的调整", Toast.LENGTH_SHORT).show();
+                // 切换回主线程显示成功信息
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    if (isAdded()) {
+                        Toast.makeText(getContext(), "已保存 " + dish.name + " 的调整", Toast.LENGTH_SHORT).show();
+                        // 由于更新的是 Dish 对象的引用，理论上列表会立即刷新（如果 RecyclerView 观察到对象变化）。
+                        // 为保险起见，可以重新加载数据以确保列表数据是最新的。
+                        loadDishData();
+                    }
+                });
+
+            } catch (Exception e) {
+                Log.e("AdjustFragment", "保存调整失败", e);
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    if (isAdded()) {
+                        Toast.makeText(getContext(), "保存失败: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
+        }).start();
     }
 }
