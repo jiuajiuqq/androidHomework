@@ -52,6 +52,6 @@ public interface PersonDao {
      *
      * @return List<AppUser>
      */
-    @Query("SELECT * FROM app_user_table ORDER BY userId DESC")
+    @Query("SELECT * FROM app_user_table ORDER BY role DESC, username ASC")
     List<Person> getAllUsers();
 }

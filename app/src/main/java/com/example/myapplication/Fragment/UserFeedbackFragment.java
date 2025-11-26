@@ -1,9 +1,16 @@
 package com.example.myapplication.Fragment;
 
+import android.content.res.ColorStateList; // 导入 ColorStateList
+import android.graphics.Color; // 导入 Color
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -13,6 +20,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.tabs.TabLayout;
+import com.example.myapplication.Adapter.UserAdapter; // 【确保 UserAdapter 已创建】
 import com.example.myapplication.DataBase.PersonDao;
 import com.example.myapplication.DataBase.PersonDatabase;
 import com.example.myapplication.Entity.Person;
@@ -20,7 +28,8 @@ import com.example.myapplication.R;
 
 import java.util.List;
 
-public class UserFeedbackFragment extends Fragment {
+// 实现 UserAdapter 的监听器接口，用于处理用户操作
+public class UserFeedbackFragment extends Fragment implements UserAdapter.OnUserActionListener {
 
     private TabLayout tabLayout;
     private RecyclerView recyclerView;
@@ -41,7 +50,7 @@ public class UserFeedbackFragment extends Fragment {
 
         // 实例化 DAO
         personDao = PersonDatabase.getDatabase(getContext()).personDao();
-        // commentDao = ... // 假设 CommentDao 实例化方式
+        // commentDao = ...
 
         setupTabs();
 
@@ -52,7 +61,8 @@ public class UserFeedbackFragment extends Fragment {
         tabLayout.addTab(tabLayout.newTab().setText("用户账号管理"));
         tabLayout.addTab(tabLayout.newTab().setText("投诉反馈处理"));
 
-        loadUserManagementList(); // 默认加载用户管理
+        // 默认加载第一个 Tab
+        loadUserManagementList();
 
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
@@ -66,14 +76,14 @@ public class UserFeedbackFragment extends Fragment {
 
             @Override
             public void onTabUnselected(TabLayout.Tab tab) {
-                // 必须实现此方法，即使内容为空
-                // 可以在这里清空当前列表或执行其他清理操作
+                // 可选：在切换 Tab 时清空列表数据，避免视觉残留
+                recyclerView.setAdapter(null);
             }
 
             @Override
             public void onTabReselected(TabLayout.Tab tab) {
-                // 必须实现此方法，即使内容为空
-                // 通常用于滚动到列表顶部等操作
+                // 可选：重复点击当前 Tab 时滚动到列表顶部
+                recyclerView.scrollToPosition(0);
             }
         });
     }
@@ -82,36 +92,114 @@ public class UserFeedbackFragment extends Fragment {
      * 加载用户列表和管理逻辑
      */
     private void loadUserManagementList() {
-        // 假设 PersonDao 中有 getAllUsers() 方法
-        List<Person> allUsers = personDao.getAllUsers();
+        new Thread(() -> {
+            try {
+                List<Person> allUsers = personDao.getAllUsers();
 
-        // TODO: 设置 UserAdapter (列表项点击可弹出 Dialog 进行操作)
-        // recyclerView.setAdapter(new UserAdapter(allUsers, this::handleUserAction));
-        Toast.makeText(getContext(), "加载所有用户 (" + allUsers.size() + ")", Toast.LENGTH_SHORT).show();
+                // 切换到主线程更新 UI
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    if (isAdded()) {
+                        // 使用 UserAdapter，传入 this 作为监听器
+                        recyclerView.setAdapter(new UserAdapter(allUsers, this));
+                        Toast.makeText(getContext(), "加载所有用户 (" + allUsers.size() + ")", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            } catch (Exception e) {
+                Log.e("UserFeedbackFragment", "加载用户失败: " + e.getMessage());
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    if (isAdded()) {
+                        Toast.makeText(getContext(), "加载用户列表失败", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        }).start();
+    }
+
+    // 【实现 UserAdapter.OnUserActionListener 接口方法】
+
+    // 1. 禁用/启用用户
+    @Override
+    public void onToggleDisable(Person user) {
+        // 确保管理员不能禁用自己（可选的安全检查）
+        if (user.role.equals("admin") && user.isDisabled == false) {
+            Toast.makeText(getContext(), "管理员账号无法在此操作中禁用", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        new Thread(() -> {
+            try {
+                // 切换禁用状态
+                user.isDisabled = !user.isDisabled;
+                personDao.update(user);
+
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    if (isAdded()) {
+                        Toast.makeText(getContext(), user.username + (user.isDisabled ? " 已禁用" : " 已启用"), Toast.LENGTH_SHORT).show();
+                        loadUserManagementList(); // 刷新列表
+                    }
+                });
+            } catch (Exception e) {
+                Log.e("UserFeedbackFragment", "禁用/启用失败", e);
+            }
+        }).start();
+    }
+
+    // 2. 删除用户
+    @Override
+    public void onDelete(Person user) {
+        // 确保不能删除管理员账号（可选的安全检查）
+        if (user.role.equals("admin")) {
+            Toast.makeText(getContext(), "管理员账号无法删除", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        new Thread(() -> {
+            try {
+                personDao.delete(user);
+
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    if (isAdded()) {
+                        Toast.makeText(getContext(), "已删除用户: " + user.username, Toast.LENGTH_SHORT).show();
+                        loadUserManagementList(); // 刷新列表
+                    }
+                });
+            } catch (Exception e) {
+                Log.e("UserFeedbackFragment", "删除用户失败", e);
+            }
+        }).start();
     }
 
     /**
-     * 处理用户账号操作 (禁用、改角色、删除)
+     * 处理用户账号操作 (此方法已部分被 Adapter 回调取代，但保留角色切换逻辑)
      */
     public void handleUserAction(Person person, String action) {
-        if ("delete".equals(action)) {
-            personDao.delete(person);
-            Toast.makeText(getContext(), "已删除用户: " + person.username, Toast.LENGTH_SHORT).show();
-        } else if ("changeRole".equals(action)) {
-            person.role = person.role.equals(Person.ROLE_ADMIN) ? Person.ROLE_STUDENT : Person.ROLE_ADMIN;
-            personDao.update(person);
-            Toast.makeText(getContext(), person.username + " 角色已变更为 " + person.role, Toast.LENGTH_SHORT).show();
+        // 这里可以实现修改角色的逻辑，例如弹出一个 Dialog 来选择新角色
+        if ("changeRole".equals(action)) {
+            // 示例：简单地切换管理员和学生角色（需要一个 Dialog 来选择）
+            String newRole = person.role.equals(Person.ROLE_ADMIN) ? "student" : "admin";
+            person.role = newRole;
+
+            new Thread(() -> {
+                personDao.update(person);
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    if (isAdded()) {
+                        Toast.makeText(getContext(), person.username + " 角色已变更为 " + newRole, Toast.LENGTH_SHORT).show();
+                        loadUserManagementList();
+                    }
+                });
+            }).start();
         }
-        loadUserManagementList(); // 刷新列表
+        // 删除和禁用操作已转移到 onToggleDisable 和 onDelete 中
     }
 
     /**
-     * 加载投诉反馈列表和处理逻辑
+     * 加载投诉反馈列表和处理逻辑 (此处仅为占位符)
      */
     private void loadFeedbackList() {
-        // List<Comment> feedbackList = commentDao.getUnprocessedComments(); // 假设从 CommentDao 获取数据
-
-        // TODO: 设置 FeedbackAdapter (列表项点击可查看详情)
+        // TODO: 实际应用中，这里应该加载 FeedbackAdapter
+        // List<Comment> feedbackList = commentDao.getUnprocessedComments();
+        // recyclerView.setAdapter(new FeedbackAdapter(feedbackList, this));
         Toast.makeText(getContext(), "加载投诉反馈列表...", Toast.LENGTH_SHORT).show();
+        recyclerView.setAdapter(null); // 清空 Adapter，防止显示用户数据
     }
 }

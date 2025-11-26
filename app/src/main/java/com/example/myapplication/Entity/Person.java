@@ -21,6 +21,7 @@ public class Person implements Serializable {
     // 注册日期
     public long registrationDate; // 使用 long 存储时间戳
 
+    public boolean isDisabled; // 【新增字段】用户禁用状态，默认为 false
     // 角色常量
     public static final String ROLE_STUDENT = "student";
     public static final String ROLE_ADMIN = "admin";
