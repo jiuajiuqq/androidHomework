@@ -32,13 +32,15 @@ import com.example.myapplication.Entity.Windows;
 import com.example.myapplication.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.example.myapplication.Dialog.WindowCrudDialogFragment;
+import com.example.myapplication.Dialog.DishCrudDialogFragment;
 
 import java.util.List;
 
 public class MenuConfigFragment extends Fragment implements CanteenAdapter.OnCanteenClickListener, WindowAdapter.OnWindowClickListener,
         DishAdapter.OnDishClickListener ,
         CanteenCrudDialogFragment.CanteenCrudListener,
-        WindowCrudDialogFragment.WindowCrudListener{
+        WindowCrudDialogFragment.WindowCrudListener,
+        DishCrudDialogFragment.DishCrudListener{
     @Override
     public void onOperationComplete() {
         // 确保在 Fragment 附加到 Activity时执行
@@ -135,8 +137,10 @@ public class MenuConfigFragment extends Fragment implements CanteenAdapter.OnCan
                 wDialog.show(getParentFragmentManager(), WindowCrudDialogFragment.TAG);
                 return;
             case DISH:
-                itemType = "菜品";
-                break;
+                DishCrudDialogFragment dDialog = DishCrudDialogFragment.newInstance(null);
+                dDialog.setTargetFragment(this, 0);
+                dDialog.show(getParentFragmentManager(), DishCrudDialogFragment.TAG);
+                return;
         }
 
         // 调用通用的 CRUD Dialog 方法，itemData = null 表示新增操作
@@ -200,9 +204,12 @@ public class MenuConfigFragment extends Fragment implements CanteenAdapter.OnCan
             WindowCrudDialogFragment dialog = WindowCrudDialogFragment.newInstance(window);
             dialog.setTargetFragment(this, 0);
             dialog.show(getParentFragmentManager(), WindowCrudDialogFragment.TAG);
-        } else {
-            // 针对其他类型的默认 toast 提示 (或 Dish 逻辑)
-            // ...
+        } else if (itemType.equals("菜品") && itemData instanceof Dish) { // 【新增菜品编辑逻辑】
+            // 编辑菜品
+            Dish dish = (Dish) itemData;
+            DishCrudDialogFragment dialog = DishCrudDialogFragment.newInstance(dish);
+            dialog.setTargetFragment(this, 0);
+            dialog.show(getParentFragmentManager(), DishCrudDialogFragment.TAG);
         }
         // 【重要】数据库操作成功后，记得调用 updateList() 刷新界面。
     }
