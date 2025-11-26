@@ -31,13 +31,14 @@ import com.example.myapplication.Entity.Dish;
 import com.example.myapplication.Entity.Windows;
 import com.example.myapplication.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.example.myapplication.Dialog.WindowCrudDialogFragment;
 
 import java.util.List;
 
 public class MenuConfigFragment extends Fragment implements CanteenAdapter.OnCanteenClickListener, WindowAdapter.OnWindowClickListener,
         DishAdapter.OnDishClickListener ,
-        CanteenCrudDialogFragment.CanteenCrudListener {
-
+        CanteenCrudDialogFragment.CanteenCrudListener,
+        WindowCrudDialogFragment.WindowCrudListener{
     @Override
     public void onOperationComplete() {
         // 确保在 Fragment 附加到 Activity时执行
@@ -129,8 +130,10 @@ public class MenuConfigFragment extends Fragment implements CanteenAdapter.OnCan
                 dialog.show(getParentFragmentManager(), CanteenCrudDialogFragment.TAG);
                 return;
             case WINDOW:
-                itemType = "窗口";
-                break;
+                WindowCrudDialogFragment wDialog = WindowCrudDialogFragment.newInstance(null);
+                wDialog.setTargetFragment(this, 0);
+                wDialog.show(getParentFragmentManager(), WindowCrudDialogFragment.TAG);
+                return;
             case DISH:
                 itemType = "菜品";
                 break;
@@ -191,13 +194,15 @@ public class MenuConfigFragment extends Fragment implements CanteenAdapter.OnCan
             CanteenCrudDialogFragment dialog = CanteenCrudDialogFragment.newInstance(canteen);
             dialog.setTargetFragment(this, 0); // 设置回调目标
             dialog.show(getParentFragmentManager(), CanteenCrudDialogFragment.TAG);
+        } else if (itemType.equals("窗口") && itemData instanceof Windows) { // 【新增窗口编辑逻辑】
+            // 编辑窗口
+            Windows window = (Windows) itemData;
+            WindowCrudDialogFragment dialog = WindowCrudDialogFragment.newInstance(window);
+            dialog.setTargetFragment(this, 0);
+            dialog.show(getParentFragmentManager(), WindowCrudDialogFragment.TAG);
         } else {
-            // 针对其他类型的默认 toast 提示 (可删除或保留)
-            if (itemData == null) {
-                Toast.makeText(getContext(), "弹出新增 " + itemType + " 的对话框", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(getContext(), "弹出编辑/删除 " + itemType + " 的对话框", Toast.LENGTH_SHORT).show();
-            }
+            // 针对其他类型的默认 toast 提示 (或 Dish 逻辑)
+            // ...
         }
         // 【重要】数据库操作成功后，记得调用 updateList() 刷新界面。
     }
