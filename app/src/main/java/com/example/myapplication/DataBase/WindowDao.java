@@ -46,4 +46,7 @@ public interface WindowDao {
      */
     @Query("SELECT * FROM window_table WHERE windowId = :windowId LIMIT 1")
     Windows getWindowById(int windowId);
+
+    @Query("SELECT * FROM window_table")
+    List<Windows> getAllWindows();
 }

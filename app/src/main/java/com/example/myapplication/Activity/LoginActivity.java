@@ -160,7 +160,7 @@ public class LoginActivity extends AppCompatActivity {
         Intent intent;
         if (selectedRole.equals(Person.ROLE_ADMIN)) {
             // 管理员跳转到管理端主页
-            intent = new Intent(LoginActivity.this, MainActivity.class);
+            intent = new Intent(LoginActivity.this, AdminMainActivity.class);
         } else {
             // 普通用户跳转到用户端主页
             intent = new Intent(LoginActivity.this, MainActivity.class);

@@ -85,4 +85,7 @@ public interface DishDao {
      */
     @Query("SELECT COUNT(*) FROM dish_table")
     int getDishCount();
+
+    @Query("SELECT * FROM dish_table")
+    List<Dish> getAllDishes();
 }

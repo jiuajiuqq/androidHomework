@@ -1,0 +1,224 @@
+package com.example.myapplication.Fragment;
+
+import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.Toast;
+
+import android.content.res.ColorStateList; // 导入 ColorStateList
+import androidx.core.content.ContextCompat; // 导入 ContextCompat
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.myapplication.Adapter.CanteenAdapter;
+import com.example.myapplication.Adapter.DishAdapter;
+import com.example.myapplication.Adapter.WindowAdapter;
+import com.example.myapplication.DataBase.CanteenDao;
+import com.example.myapplication.DataBase.WindowDao;
+import com.example.myapplication.DataBase.DishDao;
+import com.example.myapplication.DataBase.CarteenDatabase; // 假设食堂/窗口DAO在此
+import com.example.myapplication.DataBase.WindowDatabase;
+import com.example.myapplication.DataBase.DishDatabase; // 假设菜品DAO在此
+import com.example.myapplication.Entity.Canteen;
+import com.example.myapplication.Entity.Dish;
+import com.example.myapplication.Entity.Windows;
+import com.example.myapplication.R;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import java.util.List;
+
+public class MenuConfigFragment extends Fragment implements CanteenAdapter.OnCanteenClickListener, WindowAdapter.OnWindowClickListener,
+        DishAdapter.OnDishClickListener{
+
+    @Override
+    public void onDishClick(Dish dish) {
+        // 当点击菜品列表项时，调用 showCrudDialog 进入编辑/详情模式
+        showCrudDialog("菜品", dish);
+    }
+
+    @Override
+    public void onCanteenClick(Canteen canteen) {
+        // 当点击列表项时，调用 showCrudDialog 进入编辑/详情模式
+        showCrudDialog("食堂", canteen);
+    }
+
+    @Override
+    public void onWindowClick(Windows window) {
+        showCrudDialog("窗口", window);
+    }
+
+    // UI 元素
+    private RecyclerView recyclerView;
+    private FloatingActionButton fabAdd;
+    // 修正：将 Button 改为 MaterialButton
+    private com.google.android.material.button.MaterialButton btnCanteen, btnWindow, btnDish;
+
+    // 数据库 DAO
+    private CanteenDao canteenDao;
+    private WindowDao windowDao;
+    private DishDao dishDao;
+
+    private enum DisplayMode { CANTEEN, WINDOW, DISH }
+    private DisplayMode currentMode = DisplayMode.CANTEEN;
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        // 假设布局文件名为 fragment_menu_config
+        View view = inflater.inflate(R.layout.fragment_menu_config, container, false);
+
+        recyclerView = view.findViewById(R.id.rv_menu_list);
+        fabAdd = view.findViewById(R.id.fab_add_item);
+        btnCanteen = view.findViewById(R.id.btn_canteen_mode);
+        btnWindow = view.findViewById(R.id.btn_window_mode);
+        btnDish = view.findViewById(R.id.btn_dish_mode);
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        // 实例化 DAO
+        canteenDao = CarteenDatabase.getDatabase(getContext()).canteenDao();
+        windowDao = WindowDatabase.getDatabase(getContext()).windowDao();
+        dishDao = DishDatabase.getDatabase(getContext()).dishDao();
+
+        initListeners();
+        switchMode(DisplayMode.CANTEEN); // 默认加载食堂列表
+
+        return view;
+    }
+
+    private void initListeners() {
+        btnCanteen.setOnClickListener(v -> switchMode(DisplayMode.CANTEEN));
+        btnWindow.setOnClickListener(v -> switchMode(DisplayMode.WINDOW));
+        btnDish.setOnClickListener(v -> switchMode(DisplayMode.DISH));
+
+        fabAdd.setOnClickListener(v -> handleAddItem());
+    }
+
+    private void switchMode(DisplayMode mode) {
+        currentMode = mode;
+
+        // 【新增或修改】：在切换模式时，更新按钮样式
+        updateButtonStyles();
+
+        // 刷新列表
+        updateList();
+    }
+
+    private void handleAddItem() {
+        String itemType = "";
+        switch (currentMode) {
+            case CANTEEN:
+                itemType = "食堂";
+                break;
+            case WINDOW:
+                itemType = "窗口";
+                break;
+            case DISH:
+                itemType = "菜品";
+                break;
+        }
+
+        // 调用通用的 CRUD Dialog 方法，itemData = null 表示新增操作
+        showCrudDialog(itemType, null);
+    }
+
+    /**
+     * 根据当前模式加载数据和适配器
+     */
+    private void updateList() {
+        switch (currentMode) {
+            case CANTEEN:
+                List<Canteen> canteens = canteenDao.getAllCanteens();
+
+                // 【新增日志】: 检查查询到的食堂数量
+                Log.d("MenuConfig", "查询到的食堂数量: " + canteens.size());
+
+                // 检查 Adapter 是否在运行
+                if (canteens.isEmpty()) {
+                    Log.d("MenuConfig", "食堂列表为空，RecyclerView将为空白。");
+                }
+
+                recyclerView.setAdapter(new CanteenAdapter(canteens, this));
+                // ...
+                break;
+            case WINDOW:
+                // 1. 获取数据 (假设 WindowDao.getAllWindows() 存在)
+                List<Windows> windows = windowDao.getAllWindows();
+
+                // 2. 设置 WindowAdapter，使用 Fragment 自身作为监听器
+                recyclerView.setAdapter(new WindowAdapter(windows, this));
+                Toast.makeText(getContext(), "加载窗口列表...", Toast.LENGTH_SHORT).show();
+                break;
+            case DISH:
+                // 1. 获取数据 (假设 DishDao.getAllDishes() 存在)
+                List<Dish> dishes = dishDao.getAllDishes();
+
+                // 2. 设置 DishAdapter，使用 Fragment 自身作为监听器
+                recyclerView.setAdapter(new DishAdapter(dishes, this));
+                Toast.makeText(getContext(), "加载菜品列表...", Toast.LENGTH_SHORT).show();
+                break;
+        }
+    }
+
+    /**
+     * 处理新增和修改 Dialog 逻辑
+     */
+    private void showCrudDialog(String itemType, Object itemData) {
+        // TODO: 在这里实现具体的增删改查 Dialog 逻辑。
+        //       你需要根据 itemType 和 itemData 是否为空，判断是执行新增还是编辑/删除操作。
+
+        if (itemData == null) {
+            // 新增操作
+            Toast.makeText(getContext(), "弹出新增 " + itemType + " 的对话框", Toast.LENGTH_SHORT).show();
+            // 接下来可以创建并显示一个用于输入数据的 AlertDialog 或 FragmentDialog
+        } else {
+            // 编辑或删除操作 (例如：点击了 Canteen 列表项)
+            Toast.makeText(getContext(), "弹出编辑/删除 " + itemType + " 的对话框", Toast.LENGTH_SHORT).show();
+            // 接下来可以创建一个 Dialog，预填入 itemData 的信息，并提供保存和删除按钮
+        }
+
+        // 【重要】数据库操作成功后，记得调用 updateList() 刷新界面。
+    }
+    private void updateButtonStyles() {
+        if (getContext() == null) return;
+
+        // 获取颜色值 (使用 ContextCompat 确保兼容性)
+        int selectedColor = ContextCompat.getColor(getContext(), R.color.red_700);
+        int unselectedColor = ContextCompat.getColor(getContext(), R.color.gray_300);
+
+        // 创建 ColorStateList 用于设置背景Tint
+        ColorStateList selectedCsl = ColorStateList.valueOf(selectedColor);
+        ColorStateList unselectedCsl = ColorStateList.valueOf(unselectedColor);
+
+        // 重点：如果 setBackgroundTintList 无效，尝试重新设置背景为 null
+        // 然后再设置 Tint。
+
+        // 食堂按钮
+        if (currentMode == DisplayMode.CANTEEN) {
+            btnCanteen.setBackgroundTintList(selectedCsl);
+        } else {
+            btnCanteen.setBackgroundTintList(unselectedCsl);
+        }
+
+        // 窗口按钮
+        if (currentMode == DisplayMode.WINDOW) {
+            btnWindow.setBackgroundTintList(selectedCsl);
+        } else {
+            btnWindow.setBackgroundTintList(unselectedCsl);
+        }
+
+        // 菜品按钮
+        if (currentMode == DisplayMode.DISH) {
+            btnDish.setBackgroundTintList(selectedCsl);
+        } else {
+            btnDish.setBackgroundTintList(unselectedCsl);
+        }
+    }
+}
