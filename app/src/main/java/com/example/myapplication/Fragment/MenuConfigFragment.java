@@ -124,8 +124,8 @@ public class MenuConfigFragment extends Fragment implements CanteenAdapter.OnCan
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                // 每次文本变化时，只在当前模式为 CANTEEN 时执行搜索
-                if (currentMode == DisplayMode.CANTEEN) {
+                // 每次文本变化时，如果在 CANTEEN 或 WINDOW 模式下，都执行搜索/刷新
+                if (currentMode == DisplayMode.CANTEEN || currentMode == DisplayMode.WINDOW) {
                     updateList();
                 }
             }
@@ -147,10 +147,13 @@ public class MenuConfigFragment extends Fragment implements CanteenAdapter.OnCan
             if (mode == DisplayMode.CANTEEN) {
                 etSearch.setHint("搜索食堂名称或位置...");
                 etSearch.setVisibility(View.VISIBLE);
+            } else if (mode == DisplayMode.WINDOW) { // 【新增窗口搜索提示】
+                etSearch.setHint("搜索窗口名称或描述...");
+                etSearch.setVisibility(View.VISIBLE);
             } else {
-                // 可以在非食堂模式下隐藏搜索框，或更改提示
-                etSearch.setHint("请切换到食堂模式搜索");
-                // etSearch.setVisibility(View.GONE); // 如果只想在食堂模式下显示
+                // DISH 模式下可以隐藏搜索框或更改提示
+                etSearch.setHint("请切换到食堂或窗口搜索");
+                // etSearch.setVisibility(View.GONE);
             }
         }
         // 刷新列表
@@ -217,13 +220,31 @@ public class MenuConfigFragment extends Fragment implements CanteenAdapter.OnCan
                     }
                 }).start();
                 break;
-            case WINDOW:
-                // 1. 获取数据 (假设 WindowDao.getAllWindows() 存在)
-                List<Windows> windows = windowDao.getAllWindows();
+            case WINDOW: // 【新增 WINDOW 查询逻辑】
+                new Thread(() -> {
+                    List<Windows> windows;
 
-                // 2. 设置 WindowAdapter，使用 Fragment 自身作为监听器
-                recyclerView.setAdapter(new WindowAdapter(windows, this));
-                Toast.makeText(getContext(), "加载窗口列表...", Toast.LENGTH_SHORT).show();
+                    if (currentQuery.isEmpty()) {
+                        // 搜索关键词为空，加载全部窗口
+                        windows = windowDao.getAllWindows();
+                        Log.d("MenuConfig", "加载全部窗口，数量: " + windows.size());
+                    } else {
+                        // 搜索关键词不为空，执行模糊查询
+                        String searchQuery = "%" + currentQuery + "%";
+                        windows = windowDao.searchWindows(searchQuery);
+                        Log.d("MenuConfig", "窗口搜索 [" + currentQuery + "]，结果数量: " + windows.size());
+                    }
+
+                    // 切换回主线程更新 UI
+                    if (getActivity() != null) {
+                        List<Windows> finalWindows = windows;
+                        getActivity().runOnUiThread(() -> {
+                            if (isAdded()) {
+                                recyclerView.setAdapter(new WindowAdapter(finalWindows, this));
+                            }
+                        });
+                    }
+                }).start();
                 break;
             case DISH:
                 // 1. 获取数据 (假设 DishDao.getAllDishes() 存在)

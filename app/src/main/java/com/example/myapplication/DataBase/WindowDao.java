@@ -49,4 +49,7 @@ public interface WindowDao {
 
     @Query("SELECT * FROM window_table")
     List<Windows> getAllWindows();
+
+    @Query("SELECT * FROM window_table WHERE name LIKE :query OR description LIKE :query ORDER BY windowId ASC")
+    List<Windows> searchWindows(String query);
 }
