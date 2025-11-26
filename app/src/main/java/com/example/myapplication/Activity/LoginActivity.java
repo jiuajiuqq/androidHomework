@@ -6,6 +6,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -24,7 +26,13 @@ public class LoginActivity extends AppCompatActivity {
     private Button btnRegister;
     private Button btnLogin;
 
+    // 新增：角色选择器
+    private RadioGroup rgRoleSelector;
+    private RadioButton rbStudent;
+    private RadioButton rbAdmin;
+
     private PersonDao personDao; // 更改为 PersonDao
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +64,11 @@ public class LoginActivity extends AppCompatActivity {
         etPassword = findViewById(R.id.etPassword);
         btnRegister = findViewById(R.id.btnRegister);
         btnLogin = findViewById(R.id.btnLogin);
+
+        // 初始化新的视图组件
+        rgRoleSelector = findViewById(R.id.rgRoleSelector);
+        rbStudent = findViewById(R.id.rbStudent);
+        rbAdmin = findViewById(R.id.rbAdmin);
     }
 
     /**
@@ -109,6 +122,17 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
+        // **[新增逻辑]** 获取用户选择的角色
+        String selectedRole;
+        if (rbStudent.isChecked()) {
+            selectedRole = Person.ROLE_STUDENT;
+        } else if (rbAdmin.isChecked()) {
+            selectedRole = Person.ROLE_ADMIN;
+        } else {
+            Toast.makeText(this, "请选择登录身份", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         // 1. 根据用户名查找用户
         Person person = personDao.getUserByUsername(username);
 
@@ -117,19 +141,34 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
-        // 2. 验证密码 (直接比对明文密码)
-        if (password.equals(person.password)) {
-            Toast.makeText(this, "登录成功！欢迎 " + person.username, Toast.LENGTH_LONG).show();
-            Log.d("UserAction", "User logged in: " + username);
-
-            // 3. 登录成功，跳转到主界面
-            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-            intent.putExtra("USER_ID", person.userId);
-            intent.putExtra("USER_ROLE", person.role);
-            startActivity(intent);
-            finish(); // 销毁登录界面
-        } else {
+        // 2. 验证密码
+        if (!password.equals(person.password)) {
             Toast.makeText(this, "登录失败：密码错误", Toast.LENGTH_SHORT).show();
+            return;
         }
+
+        // **[新增逻辑]** 验证用户选择的角色是否与数据库中存储的角色匹配
+        if (!person.role.equals(selectedRole)) {
+            Toast.makeText(this, "登录失败：您的身份与选择的身份不匹配！", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        // 3. 登录成功，跳转到对应的 Activity
+        Toast.makeText(this, "登录成功！欢迎 " + person.username, Toast.LENGTH_LONG).show();
+        Log.d("UserAction", "User logged in as " + selectedRole + ": " + username);
+
+        Intent intent;
+        if (selectedRole.equals(Person.ROLE_ADMIN)) {
+            // 管理员跳转到管理端主页
+            intent = new Intent(LoginActivity.this, MainActivity.class);
+        } else {
+            // 普通用户跳转到用户端主页
+            intent = new Intent(LoginActivity.this, MainActivity.class);
+        }
+
+        intent.putExtra("USER_ID", person.userId);
+        intent.putExtra("USER_ROLE", person.role);
+        startActivity(intent);
+        finish();
     }
 }
