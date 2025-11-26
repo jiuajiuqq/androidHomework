@@ -27,7 +27,10 @@ public class Dish implements Serializable {
     // 是否在售
     public boolean isAvailable;
 
-    public Dish(int windowId, String name, double price, String description, String category, String imageUrl, boolean isAvailable) {
+    // 【新增字段】菜品余量/库存
+    public int remainingStock;
+
+    public Dish(int windowId, String name, double price, String description, String category, String imageUrl, boolean isAvailable, int remainingStock) {
         this.windowId = windowId;
         this.name = name;
         this.price = price;
@@ -35,6 +38,7 @@ public class Dish implements Serializable {
         this.category = category;
         this.imageUrl = imageUrl;
         this.isAvailable = isAvailable;
+        this.remainingStock = remainingStock;
     }
 
     // 省略 getter/setter 和 toString() 方法...

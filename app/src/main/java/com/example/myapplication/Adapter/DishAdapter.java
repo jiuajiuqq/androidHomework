@@ -54,7 +54,7 @@ public class DishAdapter extends RecyclerView.Adapter<DishAdapter.DishViewHolder
         holder.tvDishPrice.setText(priceText);
 
         // 库存/状态信息
-        holder.tvDishStock.setText("库存: " + dish.isAvailable);
+        holder.tvDishStock.setText("库存: " + dish.remainingStock);
 
         // 设置点击监听器
         holder.itemView.setOnClickListener(v -> {

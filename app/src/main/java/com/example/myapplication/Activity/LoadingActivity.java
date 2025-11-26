@@ -164,54 +164,54 @@ public class LoadingActivity extends AppCompatActivity {
         List<Dish> dishes = new java.util.ArrayList<>();
         switch (windowName) {
             case "特色面食":
-                dishes.add(new Dish(windowId, "红烧牛肉面", 15.00, "经典牛肉面，面条劲道", "主食", "", true));
-                dishes.add(new Dish(windowId, "麻辣小面", 10.00, "重庆风味，麻辣鲜香", "主食", "", true));
-                dishes.add(new Dish(windowId, "酸菜肉丝面", 13.00, "酸爽开胃", "主食", "", true));
-                dishes.add(new Dish(windowId, "葱油拌面", 8.00, "简单美味", "主食", "", true));
+                dishes.add(new Dish(windowId, "红烧刘高翔", 0.15, "经典牛肉面，面条劲道", "主食", "", true, 10));
+                dishes.add(new Dish(windowId, "麻辣小面", 10.00, "重庆风味，麻辣鲜香", "主食", "", true, 10));
+                dishes.add(new Dish(windowId, "酸菜肉丝面", 13.00, "酸爽开胃", "主食", "", true, 10));
+                dishes.add(new Dish(windowId, "葱油拌面", 8.00, "简单美味", "主食", "", true, 10));
                 break;
             case "自选快餐":
-                dishes.add(new Dish(windowId, "鱼香肉丝饭", 14.50, "甜酸微辣的经典套餐", "正餐", "", true));
-                dishes.add(new Dish(windowId, "红烧狮子头", 18.00, "大肉丸，软烂入味", "正餐", "", true));
-                dishes.add(new Dish(windowId, "土豆丝套餐", 11.00, "经济实惠", "正餐", "", true));
+                dishes.add(new Dish(windowId, "鱼香肉丝饭", 14.50, "甜酸微辣的经典套餐", "正餐", "", true, 10));
+                dishes.add(new Dish(windowId, "红烧狮子头", 18.00, "大肉丸，软烂入味", "正餐", "", true, 10));
+                dishes.add(new Dish(windowId, "土豆丝套餐", 11.00, "经济实惠", "正餐", "", true, 10));
                 break;
             case "风味小吃":
-                dishes.add(new Dish(windowId, "煎饼果子", 7.00, "北京特色早餐/小吃", "小吃", "", true));
-                dishes.add(new Dish(windowId, "肉夹馍", 10.50, "老潼关风味", "小吃", "", true));
-                dishes.add(new Dish(windowId, "烤冷面", 12.00, "东北街头小吃", "小吃", "", true));
-                dishes.add(new Dish(windowId, "酸辣粉", 11.50, "地道酸辣粉", "小吃", "", true));
-                dishes.add(new Dish(windowId, "茶叶蛋", 2.00, "香浓入味", "小吃", "", true));
+                dishes.add(new Dish(windowId, "煎饼果子", 7.00, "北京特色早餐/小吃", "小吃", "", true, 10));
+                dishes.add(new Dish(windowId, "肉夹馍", 10.50, "老潼关风味", "小吃", "", true, 10));
+                dishes.add(new Dish(windowId, "烤冷面", 12.00, "东北街头小吃", "小吃", "", true, 10));
+                dishes.add(new Dish(windowId, "酸辣粉", 11.50, "地道酸辣粉", "小吃", "", true, 10));
+                dishes.add(new Dish(windowId, "茶叶蛋", 2.00, "香浓入味", "小吃", "", true, 10));
                 break;
             case "饮料甜点":
-                dishes.add(new Dish(windowId, "原味奶茶", 9.00, "经典台式奶茶", "饮品", "", true));
-                dishes.add(new Dish(windowId, "双皮奶", 8.50, "清凉甜品", "甜点", "", true));
-                dishes.add(new Dish(windowId, "柠檬水", 5.00, "解渴必备", "饮品", "", true));
+                dishes.add(new Dish(windowId, "原味奶茶", 9.00, "经典台式奶茶", "饮品", "", true, 10));
+                dishes.add(new Dish(windowId, "双皮奶", 8.50, "清凉甜品", "甜点", "", true, 10));
+                dishes.add(new Dish(windowId, "柠檬水", 5.00, "解渴必备", "饮品", "", true, 10));
                 break;
             case "川湘风味":
-                dishes.add(new Dish(windowId, "麻婆豆腐", 13.00, "麻辣鲜香下饭菜", "正餐", "", true));
-                dishes.add(new Dish(windowId, "毛血旺", 25.00, "川渝经典大菜", "正餐", "", true));
-                dishes.add(new Dish(windowId, "干锅花菜", 16.00, "香辣可口", "正餐", "", true));
-                dishes.add(new Dish(windowId, "辣椒炒肉", 18.00, "湖南特色", "正餐", "", true));
+                dishes.add(new Dish(windowId, "麻婆豆腐", 13.00, "麻辣鲜香下饭菜", "正餐", "", true, 10));
+                dishes.add(new Dish(windowId, "毛血旺", 25.00, "川渝经典大菜", "正餐", "", true, 10));
+                dishes.add(new Dish(windowId, "干锅花菜", 16.00, "香辣可口", "正餐", "", true, 10));
+                dishes.add(new Dish(windowId, "辣椒炒肉", 18.00, "湖南特色", "正餐", "", true, 10));
                 break;
             case "西式简餐":
-                dishes.add(new Dish(windowId, "黑椒牛柳意面", 22.00, "浓郁黑椒汁", "西餐", "", true));
-                dishes.add(new Dish(windowId, "鸡肉沙拉", 18.00, "健康轻食", "西餐", "", true));
-                dishes.add(new Dish(windowId, "奶油蘑菇汤", 9.00, "暖胃好汤", "西餐", "", true));
+                dishes.add(new Dish(windowId, "黑椒牛柳意面", 22.00, "浓郁黑椒汁", "西餐", "", true, 10));
+                dishes.add(new Dish(windowId, "鸡肉沙拉", 18.00, "健康轻食", "西餐", "", true, 10));
+                dishes.add(new Dish(windowId, "奶油蘑菇汤", 9.00, "暖胃好汤", "西餐", "", true, 10));
                 break;
             case "清真窗口":
-                dishes.add(new Dish(windowId, "羊肉泡馍", 20.00, "西北风味", "清真", "", true));
-                dishes.add(new Dish(windowId, "大盘鸡", 30.00, "新疆特色（小份）", "清真", "", true));
-                dishes.add(new Dish(windowId, "牛肉水饺", 15.00, "皮薄馅大", "清真", "", true));
-                dishes.add(new Dish(windowId, "葱爆羊肉", 24.00, "家常清真菜", "清真", "", true));
+                dishes.add(new Dish(windowId, "羊肉泡馍", 20.00, "西北风味", "清真", "", true, 10));
+                dishes.add(new Dish(windowId, "大盘鸡", 30.00, "新疆特色（小份）", "清真", "", true, 10));
+                dishes.add(new Dish(windowId, "牛肉水饺", 15.00, "皮薄馅大", "清真", "", true, 10));
+                dishes.add(new Dish(windowId, "葱爆羊肉", 24.00, "家常清真菜", "清真", "", true, 10));
                 break;
             case "港式烧腊":
-                dishes.add(new Dish(windowId, "蜜汁叉烧饭", 19.00, "经典港式烧腊", "烧腊", "", true));
-                dishes.add(new Dish(windowId, "深井烧鹅饭", 28.00, "广式烧鹅", "烧腊", "", true));
-                dishes.add(new Dish(windowId, "豉油鸡", 17.00, "粤式名菜", "烧腊", "", true));
+                dishes.add(new Dish(windowId, "蜜汁叉烧饭", 19.00, "经典港式烧腊", "烧腊", "", true, 10));
+                dishes.add(new Dish(windowId, "深井烧鹅饭", 28.00, "广式烧鹅", "烧腊", "", true, 10));
+                dishes.add(new Dish(windowId, "豉油鸡", 17.00, "粤式名菜", "烧腊", "", true, 10));
                 break;
             default:
                 // 默认菜品
-                dishes.add(new Dish(windowId, "今日特价菜", 10.00, "每日更换的特价菜", "特价", "", true));
-                dishes.add(new Dish(windowId, "白米饭", 1.00, "优质东北米", "主食", "", true));
+                dishes.add(new Dish(windowId, "今日特价菜", 10.00, "每日更换的特价菜", "特价", "", true,10));
+                dishes.add(new Dish(windowId, "白米饭", 1.00, "优质东北米", "主食", "", true, 10));
                 break;
         }
         return dishes;

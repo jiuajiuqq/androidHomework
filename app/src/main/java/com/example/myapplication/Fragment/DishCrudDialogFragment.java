@@ -202,7 +202,7 @@ public class DishCrudDialogFragment extends DialogFragment {
                     // 【新增 (Create) 逻辑】
                     // 假设 Dish 构造函数：Dish(windowId, name, price, description, category, imageUrl, isAvailable)
                     // 暂无 imageUrl 字段，传空字符串
-                    Dish newDish = new Dish(windowId, name, price, description, category, "", isAvailable);
+                    Dish newDish = new Dish(windowId, name, price, description, category, "", isAvailable, 10);
                     dishDao.insert(newDish);
                 } else {
                     // 【修改 (Update) 逻辑】
