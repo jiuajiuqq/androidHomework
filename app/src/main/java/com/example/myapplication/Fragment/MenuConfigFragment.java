@@ -118,14 +118,15 @@ public class MenuConfigFragment extends Fragment implements CanteenAdapter.OnCan
         btnDish.setOnClickListener(v -> switchMode(DisplayMode.DISH));
 
         fabAdd.setOnClickListener(v -> handleAddItem());
+        // 【修改】搜索框文本监听器：现在包括 DISH 模式
         etSearch.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                // 每次文本变化时，如果在 CANTEEN 或 WINDOW 模式下，都执行搜索/刷新
-                if (currentMode == DisplayMode.CANTEEN || currentMode == DisplayMode.WINDOW) {
+                // 每次文本变化时，在所有模式下都执行搜索/刷新
+                if (currentMode == DisplayMode.CANTEEN || currentMode == DisplayMode.WINDOW || currentMode == DisplayMode.DISH) {
                     updateList();
                 }
             }
@@ -150,10 +151,9 @@ public class MenuConfigFragment extends Fragment implements CanteenAdapter.OnCan
             } else if (mode == DisplayMode.WINDOW) { // 【新增窗口搜索提示】
                 etSearch.setHint("搜索窗口名称或描述...");
                 etSearch.setVisibility(View.VISIBLE);
-            } else {
-                // DISH 模式下可以隐藏搜索框或更改提示
-                etSearch.setHint("请切换到食堂或窗口搜索");
-                // etSearch.setVisibility(View.GONE);
+            } else if (mode == DisplayMode.DISH) { // 【新增菜品搜索提示】
+                etSearch.setHint("搜索菜品名称、描述或类别...");
+                etSearch.setVisibility(View.VISIBLE);
             }
         }
         // 刷新列表
@@ -246,13 +246,31 @@ public class MenuConfigFragment extends Fragment implements CanteenAdapter.OnCan
                     }
                 }).start();
                 break;
-            case DISH:
-                // 1. 获取数据 (假设 DishDao.getAllDishes() 存在)
-                List<Dish> dishes = dishDao.getAllDishes();
+            case DISH: // 【新增 DISH 查询逻辑】
+                new Thread(() -> {
+                    List<Dish> dishes;
 
-                // 2. 设置 DishAdapter，使用 Fragment 自身作为监听器
-                recyclerView.setAdapter(new DishAdapter(dishes, this));
-                Toast.makeText(getContext(), "加载菜品列表...", Toast.LENGTH_SHORT).show();
+                    if (currentQuery.isEmpty()) {
+                        // 搜索关键词为空，加载全部菜品
+                        dishes = dishDao.getAllDishes();
+                        Log.d("MenuConfig", "加载全部菜品，数量: " + dishes.size());
+                    } else {
+                        // 搜索关键词不为空，执行模糊查询
+                        String searchQuery = "%" + currentQuery + "%";
+                        dishes = dishDao.searchDishes(searchQuery);
+                        Log.d("MenuConfig", "菜品搜索 [" + currentQuery + "]，结果数量: " + dishes.size());
+                    }
+
+                    // 切换回主线程更新 UI
+                    if (getActivity() != null) {
+                        List<Dish> finalDishes = dishes;
+                        getActivity().runOnUiThread(() -> {
+                            if (isAdded()) {
+                                recyclerView.setAdapter(new DishAdapter(finalDishes, this));
+                            }
+                        });
+                    }
+                }).start();
                 break;
         }
     }

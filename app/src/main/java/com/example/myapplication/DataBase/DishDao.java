@@ -88,4 +88,7 @@ public interface DishDao {
 
     @Query("SELECT * FROM dish_table")
     List<Dish> getAllDishes();
+
+    @Query("SELECT * FROM dish_table WHERE name LIKE :query OR description LIKE :query OR category LIKE :query ORDER BY dishId ASC")
+    List<Dish> searchDishes(String query);
 }
