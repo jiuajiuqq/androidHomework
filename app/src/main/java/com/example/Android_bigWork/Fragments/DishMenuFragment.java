@@ -723,4 +723,81 @@ public class DishMenuFragment extends Fragment {
     public void setStickyListView(StickyListHeadersListView stickyListView) {
         this.stickyListView = stickyListView;
     }
+    public interface OnDishCountChangeListener {
+        void onDishCountChanged(Dish dish);
+    }
+
+    // 【新增】: DishDetailFragment 需要调用的回调实现
+    public void onDishCountChanged(Dish dish) {
+        // 1. 刷新菜单列表 (主列表)
+        // 假设 stickyListView.getAdapter() 是 FoodStickyAdapter
+        if (stickyListView.getAdapter() != null) {
+            ((FoodStickyAdapter) stickyListView.getAdapter()).notifyDataSetChanged();
+        }
+
+        // 2. 刷新购物车总价和内容
+        // ❗ 注意：你需要在这里重新计算 userDishList 并调用 updateShoppingCarAccount()
+        // 由于你原来的 FoodStickyAdapter 中有 addDishToShoppingCar, removeSingleDishFromShoppingCar 等方法，
+        // 你需要将这些方法也移动到 DishMenuFragment 中，并在这里调用它们来更新 userDishList。
+
+        // 简单快速处理：强制重新计算总价和刷新 UI
+        updateShoppingCarAccount();
+    }
+
+    public void removeSingleDishFromShoppingCar(Dish dish) {
+        for(UserDish ud:userDishList){
+            if(ud.getGID()==dish.getGID()){
+                userDishList.remove(ud);
+                break;
+            }
+        }
+        //updateShoppingCarAccount();
+        updateShoppingCarAccount();
+    }
+
+    public void addDishToShoppingCar(Dish dish, int spicy, int sweet,String customText) {
+        UserDish userDish = new UserDish(
+                dish.getGID(),
+                dish.getName(),
+                dish.getDescription(),
+                dish.getPrice(),
+                dish.getCategory(),
+                dish.getCID(),
+                spicy,
+                sweet,
+                customText,
+                1,
+                user.username);
+        // 如果购物车没有菜，直接添加
+        if (userDishList.size() == 0) {
+            userDishList.add(userDish);
+        }
+        // 如果有菜，判断是否有相同的。有则数量、价格改变；没有则添加新菜
+        else {
+            boolean existSameUserDish = false;
+            for (UserDish ud : userDishList) {
+                if (ud.equals(userDish)) {
+                    existSameUserDish = true;
+                    ud.setCount(ud.getCount() + 1);
+                    ud.setPrice(ud.getPrice() + userDish.getPrice());
+                    break;
+                }
+            }
+            if (!existSameUserDish) {
+                userDishList.add(userDish);
+            }
+        }
+        //setUserDishList(userDishList);
+        Log.d(TAG, "addDishToShoppingCar: userDishList length=" + userDishList.size());
+        updateShoppingCarAccount();
+    }
+    public void onDishCountChanged() {
+        // 【核心】：刷新菜单列表 (主列表)
+        if (stickyListView.getAdapter() != null) {
+            ((FoodStickyAdapter) stickyListView.getAdapter()).notifyDataSetChanged();
+        }
+        // 【核心】：刷新购物车总价 (在 add/remove 方法中已经调用，这里再次调用确保安全)
+        updateShoppingCarAccount();
+    }
 }
+

@@ -1,5 +1,6 @@
 package com.example.Android_bigWork.Fragments;
 
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,6 +16,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -138,6 +140,30 @@ public class DishDetailFragment extends DialogFragment {
             // 图片资源获取 (需要一个 resources 对象，这里简化为直接通过 ID 查找)
             // ❗ 注意：你需要实现一个方法来获取 resources.getIdentifier()
             // ivDishImg.setImageResource(resources.getIdentifier("dish_" + currentDish.getGID(), "drawable", requireContext().getPackageName()));
+            // 【新增/修正代码】：加载菜品图片
+            try {
+                // 1. 获取 Resources 对象
+                Resources resources = requireContext().getResources();
+                // 2. 构造资源名 (例如: "dish_1", "dish_2")
+                String resourceName = "dish_" + currentDish.getGID();
+                // 3. 查找资源的 ID
+                int resourceId = resources.getIdentifier(
+                        resourceName,
+                        "drawable",
+                        requireContext().getPackageName() // 获取包名
+                );
+
+                // 4. 设置图片，如果找到 ID 且 ID 有效
+                if (resourceId != 0) {
+                    ivDishImg.setImageResource(resourceId);
+                } else {
+                    // 如果没找到图片，使用一个默认图标
+                    ivDishImg.setImageResource(android.R.drawable.ic_dialog_alert); // 假设你有一个默认图标
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Failed to load dish image: " + e.getMessage());
+                // 捕获异常，防止应用崩溃
+            }
         }
 
         // ************* 【点餐逻辑迁移】 *************
@@ -152,10 +178,20 @@ public class DishDetailFragment extends DialogFragment {
             // dishMenuFragment.addDishToShoppingCar(currentDish, 0, 0, "");
 
             currentDish.setCount(currentDish.getCount() + 1);
+            if (dishMenuFragment != null) {
+                dishMenuFragment.addDishToShoppingCar(currentDish, 0, 0, ""); // ❗ 口味选择用 0/0/"" 占位
+                // 3. 调用回调通知刷新
+                dishMenuFragment.onDishCountChanged();
+            }
+
             tvDishCount.setText(String.valueOf(currentDish.getCount()));
 
             // 刷新购物车总价 (❗ 假设 DishMenuFragment 有这个方法)
             // dishMenuFragment.updateShoppingCarAccount();
+            Fragment targetFragment = getTargetFragment();
+            if (targetFragment instanceof DishMenuFragment.OnDishCountChangeListener) {
+                ((DishMenuFragment.OnDishCountChangeListener) targetFragment).onDishCountChanged(currentDish);
+            }
 
             // 简单处理：提示并关闭弹窗（实际应该刷新父 Fragment 的 Adapter）
             Toast.makeText(requireContext(), "已添加 " + currentDish.getName(), Toast.LENGTH_SHORT).show();
@@ -168,9 +204,20 @@ public class DishDetailFragment extends DialogFragment {
                 // dishMenuFragment.removeSingleDishFromShoppingCar(currentDish);
 
                 currentDish.setCount(currentDish.getCount() - 1);
+
+                // 2. 【核心】：调用宿主 Fragment 的移除方法
+                if (dishMenuFragment != null) {
+                    dishMenuFragment.removeSingleDishFromShoppingCar(currentDish);
+                    // 3. 调用回调通知刷新
+                    dishMenuFragment.onDishCountChanged();
+                }
+
                 tvDishCount.setText(String.valueOf(currentDish.getCount()));
                 // dishMenuFragment.updateShoppingCarAccount();
-
+                Fragment targetFragment = getTargetFragment();
+                if (targetFragment instanceof DishMenuFragment.OnDishCountChangeListener) {
+                    ((DishMenuFragment.OnDishCountChangeListener) targetFragment).onDishCountChanged(currentDish);
+                }
                 // 简单处理：提示并关闭弹窗
                 Toast.makeText(requireContext(), "已移除 " + currentDish.getName(), Toast.LENGTH_SHORT).show();
             }

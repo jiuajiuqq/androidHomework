@@ -158,11 +158,11 @@ public class FoodStickyAdapter extends BaseAdapter implements StickyListHeadersA
             if (dish.getCount() == 1) {
                 // 数据层-1
                 dish.setCount(dish.getCount() - 1);
+                // 从购物车中移除 (调用 Fragment 的方法)
+                dishMenuFragment.removeSingleDishFromShoppingCar(dish); // 【修正】: 调用 Fragment 中的方法
+
                 // 视图层-1
-//                TextView count_sub = contentView.findViewById(R.id.dish_count);
                 holder.count.setText(String.valueOf(dish.getCount()));
-                // 从购物车中移除
-                removeSingleDishFromShoppingCar(dish);
                 // 通知视图改变
                 notifyDataSetChanged();
             }
@@ -179,6 +179,7 @@ public class FoodStickyAdapter extends BaseAdapter implements StickyListHeadersA
         return convertView;
     }
 
+
     /**
      * 【修改后的新逻辑】: 启动 DishDetailFragment 来显示详情/点餐/评论
      *
@@ -190,7 +191,7 @@ public class FoodStickyAdapter extends BaseAdapter implements StickyListHeadersA
         if (context instanceof AppCompatActivity) {
             // 1. 创建新的 DialogFragment 实例
             DishDetailFragment detailFragment = DishDetailFragment.newInstance(dish);
-
+            detailFragment.setTargetFragment(dishMenuFragment, 0); // dishMenuFragment 是构造函数传入的实例
             // 2. 设置为底部弹出样式（可选，但通常 DialogFragment 更灵活）
             // detailFragment.setStyle(DialogFragment.STYLE_NORMAL, R.style.BottomSheetDialogTheme);
 
@@ -204,16 +205,6 @@ public class FoodStickyAdapter extends BaseAdapter implements StickyListHeadersA
         }
     }
 
-    private void removeSingleDishFromShoppingCar(Dish dish) {
-        for(UserDish ud:userDishList){
-            if(ud.getGID()==dish.getGID()){
-                userDishList.remove(ud);
-                break;
-            }
-        }
-        dishMenuFragment.updateShoppingCarAccount();
-    }
-
     public int getPositionByCID(int CID) {
         for (int i = 0; i < dishList.size(); i++) {
             Dish dish = dishList.get(i);
@@ -225,41 +216,7 @@ public class FoodStickyAdapter extends BaseAdapter implements StickyListHeadersA
     }
 
 
-    public void addDishToShoppingCar(Dish dish, int spicy, int sweet,String customText) {
-        UserDish userDish = new UserDish(
-                dish.getGID(),
-                dish.getName(),
-                dish.getDescription(),
-                dish.getPrice(),
-                dish.getCategory(),
-                dish.getCID(),
-                spicy,
-                sweet,
-                customText,
-                1,
-                userName);
-        // 如果购物车没有菜，直接添加
-        if (userDishList.size() == 0) {
-            userDishList.add(userDish);
-        }
-        // 如果有菜，判断是否有相同的。有则数量、价格改变；没有则添加新菜
-        else {
-            boolean existSameUserDish = false;
-            for (UserDish ud : userDishList) {
-                if (ud.equals(userDish)) {
-                    existSameUserDish = true;
-                    ud.setCount(ud.getCount() + 1);
-                    ud.setPrice(ud.getPrice() + userDish.getPrice());
-                    break;
-                }
-            }
-            if (!existSameUserDish) {
-                userDishList.add(userDish);
-            }
-        }
-        dishMenuFragment.setUserDishList(userDishList);
-        Log.d(TAG, "addDishToShoppingCar: userDishList length=" + userDishList.size());
-    }
+
 
     int transformDishGID(Dish dish, int spicy, int sweet) {
         return dish.getGID() * 100 + spicy * 10 + sweet;
