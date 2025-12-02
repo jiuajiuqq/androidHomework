@@ -1,178 +1,217 @@
 package com.example.Android_bigWork.Activity;
 
-import static com.example.Android_bigWork.Utils.KeyboardUtils.hideKeyboard;
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.AppCompatTextView;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.Android_bigWork.Database.PersonDao;
 import com.example.Android_bigWork.Database.PersonDatabase;
 import com.example.Android_bigWork.Entity.Person;
 import com.example.Android_bigWork.R;
-import com.example.Android_bigWork.Utils.SubmitButton;
-import com.example.Android_bigWork.action.HandlerAction;
-import com.hjq.xtoast.XToast;
 
-public class LoginActivity extends AppCompatActivity implements HandlerAction {
-    EditText mUsername, mPassword;
-    SubmitButton mLoginButton;
-    AppCompatTextView mSignUpButton;
+public class LoginActivity extends AppCompatActivity {
+
+    private EditText etUsername;
+    private EditText etPassword;
+    private Button btnRegister;
+    private Button btnLogin;
+
+    // 角色选择器
+    private RadioGroup rgRoleSelector;
+    private RadioButton rbStudent;
+    private RadioButton rbAdmin;
+
+    private PersonDao personDao;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //去掉标题栏
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().hide();
-        }
+        setContentView(R.layout.activity_login);
 
+        initViews();
 
-        setContentView(R.layout.login_activity);
-        mUsername = findViewById(R.id.textView_username);
-        mPassword = findViewById(R.id.textView_password);
-        mLoginButton = findViewById(R.id.btn_login);
-        mSignUpButton = findViewById(R.id.btn_signup);
+        // 1. 初始化数据库 DAO
+        // ⚠️ 注意：如果 PersonDatabase 未使用 .allowMainThreadQueries()，
+        // 则 DAO 的方法调用必须在后台线程中执行。
+        personDao = PersonDatabase.getDatabase(this).getPersonDao();
 
-        Intent initIntent = getIntent();
-        Intent navigateToSignUp = new Intent(this, SignUpActivity.class);
-        //跳转到Main时，清空Activity堆栈
-        Intent navigateToHome = new Intent(this, MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-        //判断是否有传入的Bundle数据
-        if (initIntent.getExtras() != null) {
-            //获取Bundle数据
-            Bundle bundle = initIntent.getExtras();
-            //获取Bundle中的数据
-            Person user = (Person) bundle.getSerializable("user");
-            //判断是否有传入的用户数据
-            if (user != null) {
-                //将用户数据显示在界面上
-                mUsername.setText(user.username);
-                mPassword.setText(user.password);
-            }
-        }
-
-        //获取数据库
-        PersonDatabase personDatabase = PersonDatabase.getDatabase(this);
-        PersonDao personDao = personDatabase.getPersonDao();
-        //登录按钮监听器
-        mLoginButton.setOnClickListener(v -> {
-            String username = this.mUsername.getText().toString();
-            String password = this.mPassword.getText().toString();
-            Log.d("Login", "username: " + username + " password: " + password);
-            mLoginButton.showProgress();
-            //检测用户名密码是否为空
-            if (checkEmpty(username, password)) return;
-            //检测用户名是否为纯数字
-            boolean isNumber = isNumber(username);
-            //查询数据库
-            if (checkDataBase(username, password, personDao)) {
-                mLoginButton.showSucceed();
-//                Toast.makeText(this, "登录成功", Toast.LENGTH_SHORT).show();
-                //跳转到主界面
-                postDelayed(() -> {
-                    //查询该用户
-                    Person user = personDao.queryPerson(username);
-                    //将用户数据传入Bundle
-                    Bundle bundle = new Bundle();
-                    bundle.putSerializable("user", user);
-                    //将Bundle数据传入Intent
-                    navigateToHome.putExtras(bundle);
-                    startActivity(navigateToHome);
-                }, 1000);
-            } else {
-                mLoginButton.showError(3000);
-                new XToast<>(this)
-                        .setContentView(R.layout.window_hint)
-                        .setDuration(1000)
-                        .setImageDrawable(android.R.id.icon, R.drawable.icon_error)
-                        .setText(R.string.login_fail)
-                        //设置动画效果
-                        .setAnimStyle(R.style.IOSAnimStyle)
-                        // 设置外层是否能被触摸
-                        .setOutsideTouchable(false)
-                        // 设置窗口背景阴影强度
-                        .setBackgroundDimAmount(0.5f)
-                        .show();
+        btnRegister.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                handleRegister();
             }
         });
 
-        //注册按钮监听器
-        mSignUpButton.setOnClickListener(v -> {
-            //跳转到注册界面
-            startActivity(navigateToSignUp);
-        });
-        //点击到img则收起键盘
-        findViewById(R.id.imageView_bg).setOnClickListener(v -> {
-            //检测是否有焦点
-            if (mUsername.isFocused() || mPassword.isFocused()) {
-                //清除焦点
-                mUsername.clearFocus();
-                mPassword.clearFocus();
+        btnLogin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                handleLogin();
             }
-            //收起键盘
-            hideKeyboard(this);
         });
     }
 
-    private boolean checkDataBase(String username, String password, PersonDao personDao) {
-        if (personDao.checkLogin(username, password) != null
-                || isNumber(username) && personDao.checkLoginByPhoneNumber(Long.parseLong(username), password) != null) {
-            return true;
-        }
-        return false;
+    private void initViews() {
+        etUsername = findViewById(R.id.etUsername);
+        etPassword = findViewById(R.id.etPassword);
+        btnRegister = findViewById(R.id.btnRegister);
+        btnLogin = findViewById(R.id.btnLogin);
+
+        // 初始化新的视图组件
+        rgRoleSelector = findViewById(R.id.rgRoleSelector);
+        rbStudent = findViewById(R.id.rbStudent);
+        rbAdmin = findViewById(R.id.rbAdmin);
     }
 
-    private boolean checkEmpty(String username, String password) {
-        //判断是否为空
-        if (username.isEmpty()) {
-            new XToast<>(this)
-                    .setContentView(R.layout.window_hint)
-                    .setDuration(1000)
-                    .setImageDrawable(android.R.id.icon, R.drawable.icon_error)
-                    .setText(R.string.login_username_empty)
-                    //设置动画效果
-                    .setAnimStyle(R.style.IOSAnimStyle)
-                    // 设置外层是否能被触摸
-                    .setOutsideTouchable(false)
-                    // 设置窗口背景阴影强度
-                    .setBackgroundDimAmount(0.5f)
-                    .show();
-            mLoginButton.showError(3000);
-            return true;
-        } else if (password.isEmpty()) {
-            new XToast<>(this)
-                    .setContentView(R.layout.window_hint)
-                    .setDuration(1000)
-                    .setImageDrawable(android.R.id.icon, R.drawable.icon_error)
-                    .setText(R.string.login_password_empty)
-                    //设置动画效果
-                    .setAnimStyle(R.style.IOSAnimStyle)
-                    // 设置外层是否能被触摸
-                    .setOutsideTouchable(false)
-                    // 设置窗口背景阴影强度
-                    .setBackgroundDimAmount(0.5f)
-                    .show();
-            mLoginButton.showError(3000);
-            return true;
-        }
-        return false;
-    }
+    /**
+     * 处理用户注册逻辑 (数据库操作在后台线程执行)
+     */
+    private void handleRegister() {
+        final String username = etUsername.getText().toString().trim();
+        final String password = etPassword.getText().toString();
 
-    private boolean isNumber(String username) {
-        boolean isNumber = true;
-        for (int i = 0; i < username.length(); i++) {
-            if (!Character.isDigit(username.charAt(i))) {
-                isNumber = false;
-                break;
+        if (username.isEmpty() || password.isEmpty()) {
+            Toast.makeText(this, "用户名和密码不能为空", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // 🌟 修复：使用新线程执行注册数据库操作 🌟
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                // 1. 检查用户名是否已存在 (后台线程 I/O)
+                Person existingPerson = personDao.getUserByUsername(username);
+
+                // 2. 切回主线程处理 UI 结果
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (existingPerson != null) {
+                            Toast.makeText(LoginActivity.this, "注册失败：该用户名已被占用", Toast.LENGTH_SHORT).show();
+                        } else {
+                            // 3. 在后台线程插入新用户
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Person newPerson = new Person(
+                                            username,
+                                            password,
+                                            Person.ROLE_STUDENT,
+                                            System.currentTimeMillis(),
+                                            110,
+                                            Person.GENDER_MALE,
+                                            123
+                                    );
+                                    try {
+                                        personDao.insert(newPerson);
+                                        runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                Toast.makeText(LoginActivity.this, "注册成功！请登录。", Toast.LENGTH_LONG).show();
+                                                Log.d("UserAction", "User registered: " + username);
+                                            }
+                                        });
+                                    } catch (Exception e) {
+                                        runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                Toast.makeText(LoginActivity.this, "注册失败：数据库错误", Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+                                        Log.e("UserAction", "Database insert error", e);
+                                    }
+                                }
+                            }).start();
+                        }
+                    }
+                });
             }
-        }
-        return isNumber;
+        }).start();
     }
 
+    /**
+     * 处理用户登录逻辑 (数据库操作在后台线程执行)
+     */
+    private void handleLogin() {
+        final String username = etUsername.getText().toString().trim();
+        final String password = etPassword.getText().toString();
+
+        if (username.isEmpty() || password.isEmpty()) {
+            Toast.makeText(this, "请输入用户名和密码", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        final String selectedRole;
+        if (rbStudent.isChecked()) {
+            selectedRole = Person.ROLE_STUDENT;
+        } else if (rbAdmin.isChecked()) {
+            selectedRole = Person.ROLE_ADMIN;
+        } else {
+            Toast.makeText(this, "请选择登录身份", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // 🌟 修复：使用新线程执行登录数据库查询 🌟
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                // 1. 在后台线程根据用户名查找用户
+                final Person person = personDao.getUserByUsername(username);
+
+                // 2. 切回主线程处理 UI 逻辑和跳转
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (person == null) {
+                            Toast.makeText(LoginActivity.this, "登录失败：用户名不存在", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        // 验证密码
+                        if (!password.equals(person.password)) {
+                            Toast.makeText(LoginActivity.this, "登录失败：密码错误", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        // 验证用户选择的角色是否与数据库中存储的角色匹配
+                        if (!person.role.equals(selectedRole)) {
+                            Toast.makeText(LoginActivity.this, "登录失败：您的身份与选择的身份不匹配！", Toast.LENGTH_LONG).show();
+                            return;
+                        }
+
+                        // 3. 登录成功，跳转到对应的 Activity
+                        Toast.makeText(LoginActivity.this, "登录成功！欢迎 " + person.username, Toast.LENGTH_LONG).show();
+                        Log.d("UserAction", "User logged in as " + selectedRole + ": " + username);
+
+                        Intent intent;
+                        if (selectedRole.equals(Person.ROLE_ADMIN)) {
+                            // 管理员跳转到管理端主页
+                            intent = new Intent(LoginActivity.this, AdminMainActivity.class);
+                        } else {
+                            // 普通用户跳转到用户端主页
+                            intent = new Intent(LoginActivity.this, MainActivity.class);
+                        }
+
+                        // 🌟 关键修复：传输完整的 Person 对象，满足 MainActivity 的需求 🌟
+                        intent.putExtra("user", person);
+
+                        // 原始代码中的这两行不再是关键，但如果 AdminMainActivity 等需要，可以保留
+                        intent.putExtra("USER_ID", person.UID);
+                        intent.putExtra("USER_ROLE", person.role);
+
+                        startActivity(intent);
+                        finish();
+                    }
+                });
+            }
+        }).start();
+    }
 }

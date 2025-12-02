@@ -34,7 +34,7 @@ public class UserDishRepository {
     }
 
     public void insert(UserDish userDish){
-        DishDatabase.databaseExecutor.execute(()->{
+        DishDatabase.DatabaseExecutor.execute(()->{
             userDishDao.insert(userDish);
         });
     }

@@ -12,14 +12,14 @@ import com.example.Android_bigWork.Entity.UserDish;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@Database(entities = {UserDish.class, Dish.class}, version = 5, exportSchema = false)
+@Database(entities = {UserDish.class, Dish.class}, version = 6, exportSchema = false)
 public abstract class UserDishDatabase extends RoomDatabase {
 
     public abstract UserDishDao userDishDao();
 
     private static volatile UserDishDatabase INSTANCE;
     private static final int NUMBER_OF_THREADS = 4;
-    static final ExecutorService databaseExecutor = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
+    static final ExecutorService DatabaseExecutor = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
 
     public static UserDishDatabase getDatabase(final Context context) {
         if (INSTANCE == null) {

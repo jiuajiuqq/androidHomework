@@ -14,16 +14,16 @@ import java.io.Serializable;
 @Entity(tableName = "dish_table")
 public class Dish implements Serializable {     // 菜品类
     @PrimaryKey
-    private int GID;    // 菜品在菜单上的唯一编号
-    private String name;    // 菜品名
-    private String description; // 菜品描述
-    private double price;   // 价格(单价)
-    private String category;    // 分类类名
-    private int CID;    // 分类编号
-    private boolean customizable;   // 是否支持定制需求
-    private boolean spicy;  // 辣味是否可选
-    private boolean sweet;  // 甜味是否可选
-    private int count;  // 选购份数
+    public int GID;    // 菜品在菜单上的唯一编号
+    public String name;    // 菜品名
+    public String description; // 菜品描述
+    public double price;   // 价格(单价)
+    public String category;    // 分类类名
+    public int CID;    // 分类编号
+    public boolean customizable;   // 是否支持定制需求
+    public boolean spicy;  // 辣味是否可选
+    public boolean sweet;  // 甜味是否可选
+    public int count;  // 选购份数
 
     // 所属窗口ID
     public int windowId;

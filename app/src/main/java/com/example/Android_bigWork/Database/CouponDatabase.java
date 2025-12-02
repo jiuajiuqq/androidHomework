@@ -14,7 +14,7 @@ import com.example.Android_bigWork.Entity.Coupon;
  * @Desc
  * @date 2022/10/18 19:29
  */
-@Database(entities = {Coupon.class}, version = 1, exportSchema = false)
+@Database(entities = {Coupon.class}, version = 2, exportSchema = false)
 public abstract class CouponDatabase extends RoomDatabase {
     private static final String DB_NAME = "coupon.db";
     private static CouponDatabase INSTANCE;

@@ -32,6 +32,14 @@ android {
 }
 
 dependencies {
+    // 🌟 1. Retrofit 核心库
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+
+    // 🌟 2. Retrofit 的 Gson 转换器 (用于 JSON 序列化/反序列化)
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+
+    // 3. OkHttp 库（Retrofit 依赖于它，通常也建议显式添加）
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
     implementation "com.airbnb.android:lottie:5.2.0"
     implementation 'androidx.appcompat:appcompat:1.5.1'
     implementation 'com.google.android.material:material:1.6.1'

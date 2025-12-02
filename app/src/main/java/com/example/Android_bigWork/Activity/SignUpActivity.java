@@ -75,7 +75,7 @@ public class SignUpActivity extends AppCompatActivity
             //判断是否为空
             if (checkEmpty(username, password, phoneNumber)) {
                 //查询数据库
-                if (checkDataBase(username, password, phoneNumber, personDao)) {
+                if (checkDatabase(username, password, phoneNumber, personDao)) {
                     //添加用户
                     new PayPasswordDialog.Builder(this)
                             .setTitle(getRString(R.string.pay_set_title))
@@ -129,7 +129,7 @@ public class SignUpActivity extends AppCompatActivity
         });
     }
 
-    private boolean checkDataBase(String username, String password, String phoneNumber, PersonDao personDao) {
+    private boolean checkDatabase(String username, String password, String phoneNumber, PersonDao personDao) {
         //查询数据库
         if (personDao.checkUsername(username) != null) {
             newErrorXToast(R.string.register_username_exist);

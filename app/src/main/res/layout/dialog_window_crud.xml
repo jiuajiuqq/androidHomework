@@ -1,0 +1,64 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="所属食堂"
+        android:layout_marginTop="8dp"/>
+
+    <Spinner
+        android:id="@+id/sp_window_canteen"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp" />
+
+    <EditText
+        android:id="@+id/et_window_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="窗口名称 (如：特色面食)"
+        android:inputType="text" />
+
+    <EditText
+        android:id="@+id/et_window_description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="窗口描述/特色"
+        android:inputType="text" />
+
+    <EditText
+        android:id="@+id/et_window_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="状态（如：营业中/休息中）"
+        android:inputType="text" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="16dp">
+
+        <Button
+            android:id="@+id/btn_delete_window"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="删除窗口"
+            android:backgroundTint="@android:color/holo_red_dark"
+            android:layout_marginEnd="8dp"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/btn_save_window"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="保存窗口" />
+    </LinearLayout>
+</LinearLayout>

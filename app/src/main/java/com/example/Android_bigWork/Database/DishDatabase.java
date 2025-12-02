@@ -14,13 +14,13 @@ import com.example.Android_bigWork.Entity.UserDish;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors; // 确保导入
 
-@Database(entities = {Dish.class, Comment.class, Favorite.class, UserDish.class}, version = 9, exportSchema = false)
+@Database(entities = {Dish.class, Comment.class, Favorite.class, UserDish.class}, version = 10, exportSchema = false)
 public abstract class DishDatabase extends RoomDatabase {
     private static final String DB_NAME = "dish.db";
     private static DishDatabase INSTANCE;
     // 【新增】: 线程池执行器 (与 UserDishDatabase 中的定义一致)
     private static final int NUMBER_OF_THREADS = 4;
-    public static final ExecutorService databaseExecutor =
+    public static final ExecutorService DatabaseExecutor =
             Executors.newFixedThreadPool(NUMBER_OF_THREADS);
     /**
      * 获取数据库实例

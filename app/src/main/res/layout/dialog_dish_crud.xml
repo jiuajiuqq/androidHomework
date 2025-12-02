@@ -1,0 +1,85 @@
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="所属窗口"
+            android:layout_marginTop="8dp"/>
+
+        <Spinner
+            android:id="@+id/sp_dish_window"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp" />
+
+        <EditText
+            android:id="@+id/et_dish_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="菜品名称"
+            android:inputType="text" />
+
+        <EditText
+            android:id="@+id/et_dish_price"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="价格 (如: 15.00)"
+            android:inputType="numberDecimal" />
+
+        <EditText
+            android:id="@+id/et_dish_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="菜品描述"
+            android:inputType="textMultiLine"
+            android:maxLines="3"/>
+
+        <EditText
+            android:id="@+id/et_dish_category"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="类别 (如: 主食/小吃)"
+            android:inputType="text" />
+
+        <CheckBox
+            android:id="@+id/cb_dish_available"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="是否上架"
+            android:layout_marginTop="16dp"
+            android:checked="true"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="16dp">
+
+            <Button
+                android:id="@+id/btn_delete_dish"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="删除菜品"
+                android:backgroundTint="@android:color/holo_red_dark"
+                android:layout_marginEnd="8dp"
+                android:visibility="gone" />
+
+            <Button
+                android:id="@+id/btn_save_dish"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="保存菜品" />
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

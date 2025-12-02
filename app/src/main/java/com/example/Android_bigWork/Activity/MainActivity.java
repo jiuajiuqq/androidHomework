@@ -40,34 +40,45 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        //获取到fragment的管理对象
-        fragmentManager = getSupportFragmentManager();
-        // init FragmentArrayList
+
+        // 1. 获取并设置用户数据 (必须先执行)
+        Intent initIntent = getIntent();
+        if (initIntent.getExtras() != null) {
+            Bundle bundle = initIntent.getExtras();
+            // 🌟 关键调整：先从 Intent 获取 user 数据 🌟
+            user = (Person) bundle.getSerializable("user");
+
+            if (user == null) {
+                // 如果用户数据为空，可能是 Intent 传递错误，应退出
+                Toast.makeText(this, "用户数据加载失败，请重新登录。", Toast.LENGTH_LONG).show();
+                finish();
+                return;
+            }
+            // Toast.makeText(this, R.string.welcome + user.username, Toast.LENGTH_SHORT).show();
+        } else {
+            // 如果没有 Intent 数据，也应该退出或跳转回登录页
+            Toast.makeText(this, "未检测到登录信息，请重新登录。", Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
+
+        // 2. 初始化 Fragment ArrayList，此时 user 已经有值了
         initFragmentArrayList();
 
-        // init BottomNavigationBar
+        // 3. 获取到 Fragment 的管理对象
+        fragmentManager = getSupportFragmentManager();
+
+        // 4. 初始化 BottomNavigationBar
         initBottomNavigationBar();
 
-        // init FragmentTransaction and select the first fragment to show
+        // 5. 初始化 FragmentTransaction 并显示第一个 Fragment
         initFragmentTransaction();
 
-        //隐藏标题栏
+        // 6. 隐藏标题栏
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.hide();
         }
-        //获取从登录界面传来的数据
-        Intent initIntent = getIntent();
-        if (initIntent.getExtras() != null) {
-            //获取Bundle数据
-            Bundle bundle = initIntent.getExtras();
-            //获取Bundle中的数据
-            user = (Person) bundle.getSerializable("user");
-            //判断是否有传入的用户数据
-//            Toast.makeText(this, R.string.welcome + user.username, Toast.LENGTH_SHORT).show();
-        }
-
-
     }
 
     /**
