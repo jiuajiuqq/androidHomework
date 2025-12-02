@@ -51,7 +51,7 @@ public class UserFeedbackFragment extends Fragment implements
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         // 实例化 DAO
-        personDao = PersonDatabase.getDatabase(getContext()).personDao();
+        personDao = PersonDatabase.getDatabase(getContext()).getPersonDao();
         feedbackDao = FeedbackDatabase.getDatabase(getContext()).feedbackDao(); // 【实例化 FeedbackDao】
 
         setupTabs();

@@ -42,7 +42,7 @@ public class LoginActivity extends AppCompatActivity {
         initViews();
 
         // 1. 初始化数据库 DAO (假设 UserDatabase.getDatabase(this).personDao() 已经配置正确)
-        personDao = PersonDatabase.getDatabase(this).personDao();
+        personDao = PersonDatabase.getDatabase(this).getPersonDao();
 
         btnRegister.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -96,7 +96,10 @@ public class LoginActivity extends AppCompatActivity {
                 username,
                 password, // 直接存储明文密码
                 Person.ROLE_STUDENT,
-                System.currentTimeMillis()
+                System.currentTimeMillis(),
+                110,
+                Person.GENDER_MALE,
+                123
         );
 
         // 3. 插入数据库
@@ -166,7 +169,7 @@ public class LoginActivity extends AppCompatActivity {
             intent = new Intent(LoginActivity.this, MainActivity.class);
         }
 
-        intent.putExtra("USER_ID", person.userId);
+        intent.putExtra("USER_ID", person.UID);
         intent.putExtra("USER_ROLE", person.role);
         startActivity(intent);
         finish();

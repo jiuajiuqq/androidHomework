@@ -16,18 +16,36 @@ public interface PersonDao {
      */
     @Insert
     void insert(Person user);
-
-    /**
-     * 更新用户信息
-     */
-    @Update
-    void update(Person user);
-
     /**
      * 删除用户
      */
     @Delete
     void delete(Person user);
+    /**
+     * 更新用户信息
+     */
+    @Query("SELECT * FROM app_user_table WHERE username = :username and password = :password ")
+    Person checkLogin(String username, String password);
+
+    @Query("SELECT * FROM app_user_table WHERE phoneNumber = :phoneNumber and password = :password ")
+    Person checkLoginByPhoneNumber(long phoneNumber, String password);
+
+    @Query("SELECT * FROM app_user_table WHERE username = :username")
+    Person checkUsername(String username);
+
+    @Query("SELECT * FROM app_user_table WHERE phoneNumber = :phoneNumber")
+    Person checkPhoneNumber(long phoneNumber);
+
+    @Query("UPDATE app_user_table SET password = :newPassword WHERE password  = :oldPassword and username = :username")
+    void changePassword(String oldPassword, String newPassword, String username);
+
+    @Query("SELECT * FROM app_user_table WHERE username = :username")
+    Person queryPerson(String username);
+
+    @Query("SELECT payPassword FROM app_user_table WHERE username = :username")
+    int queryPayPassword(String username);
+    @Update
+    void update(Person user);
 
     /**
      * 根据用户名查询用户（用于登录或检查用户名重复）
@@ -44,7 +62,7 @@ public interface PersonDao {
      * @param userId 用户ID
      * @return AppUser
      */
-    @Query("SELECT * FROM app_user_table WHERE userId = :userId LIMIT 1")
+    @Query("SELECT * FROM app_user_table WHERE UID = :userId LIMIT 1")
     Person getUserByUserId(int userId);
 
     /**

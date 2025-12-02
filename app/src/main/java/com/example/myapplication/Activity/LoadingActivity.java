@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
-import android.view.Window;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -77,7 +76,7 @@ public class LoadingActivity extends AppCompatActivity {
         Log.i("Init", "System initialization started...");
 
         // 实例化所有需要的 DAO
-        PersonDao personDao = PersonDatabase.getDatabase(this).personDao();
+        PersonDao personDao = PersonDatabase.getDatabase(this).getPersonDao();
         CanteenDao canteenDao = CarteenDatabase.getDatabase(this).canteenDao();
         WindowDao windowDao = WindowDatabase.getDatabase(this).windowDao();
         DishDao dishDao = DishDatabase.getDatabase(this).dishDao();
@@ -90,7 +89,10 @@ public class LoadingActivity extends AppCompatActivity {
                         "admin",
                         "123",
                         Person.ROLE_ADMIN,
-                        System.currentTimeMillis()
+                        System.currentTimeMillis(),
+                        110,
+                        Person.GENDER_MALE,
+                        123
                 );
                 personDao.insert(admin);
                 Log.d("Init", "Default Admin account created.");

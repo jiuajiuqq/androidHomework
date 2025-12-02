@@ -8,7 +8,7 @@ import androidx.room.RoomDatabase;
 
 import com.example.myapplication.Entity.Person;
 
-@Database(entities = {Person.class}, version = 2, exportSchema = false)
+@Database(entities = {Person.class}, version = 7, exportSchema = false)
 public abstract class PersonDatabase extends RoomDatabase {
     private static final String DB_NAME = "user.db";
     private static PersonDatabase INSTANCE;
@@ -25,5 +25,5 @@ public abstract class PersonDatabase extends RoomDatabase {
         return INSTANCE;
     }
 
-    public abstract PersonDao personDao();
+    public abstract PersonDao getPersonDao();
 }
