@@ -8,7 +8,7 @@ import androidx.room.RoomDatabase;
 
 import com.example.Android_bigWork.Entity.Canteen;
 
-@Database(entities = {Canteen.class}, version = 2, exportSchema = false)
+@Database(entities = {Canteen.class}, version = 3, exportSchema = false)
 public abstract class CarteenDatabase extends RoomDatabase {
     private static final String DB_NAME = "carteen.db";
     private static CarteenDatabase INSTANCE;

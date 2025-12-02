@@ -13,7 +13,7 @@
     <string name="hello_blank_fragment" >Helloblankfragment</string>
     <string name="pay_title" >Please enter the payment code</string>
     <string name="defaultValue">default</string>
-
+    <string name="content_description_ai_tasks">AI entry</string>
     <!--    商品信息    -->
     <string name="dish_1" >The big MAC</string>
     <string name="dish_2" >Plain pearl milk tea</string>

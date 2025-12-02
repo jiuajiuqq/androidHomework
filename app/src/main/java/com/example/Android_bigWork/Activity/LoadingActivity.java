@@ -73,6 +73,7 @@ public class LoadingActivity extends AppCompatActivity
         if (dishDao.getDishCount() == 0) {
             //初始化数据库
             initDishDatabase(dishDao);
+            initializeSystem();
         }
         //延迟2400ms跳转到登录界面
         postDelayed(() -> {

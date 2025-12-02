@@ -8,7 +8,7 @@ import androidx.room.RoomDatabase;
 
 import com.example.Android_bigWork.Entity.Windows;
 
-@Database(entities = {Windows.class}, version = 2, exportSchema = false)
+@Database(entities = {Windows.class}, version = 3, exportSchema = false)
 public abstract class WindowDatabase extends RoomDatabase {
     private static final String DB_NAME = "structure.db";
     private static WindowDatabase INSTANCE;

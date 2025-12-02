@@ -15,11 +15,10 @@ import android.widget.Toast;
 
 import com.ashokvarma.bottomnavigation.BottomNavigationBar;
 import com.ashokvarma.bottomnavigation.BottomNavigationItem;
-//import com.example.Android_bigWork.R;
-
+// 导入 FloatingActionButton 所需的类 (新增)
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.example.Android_bigWork.Entity.Person;
 import com.example.Android_bigWork.Fragments.DishMenuFragment;
-
 import com.example.Android_bigWork.Fragments.OrderFragment;
 import com.example.Android_bigWork.Fragments.SettingFragment;
 import com.example.Android_bigWork.R;
@@ -54,7 +53,6 @@ public class MainActivity extends AppCompatActivity {
                 finish();
                 return;
             }
-            // Toast.makeText(this, R.string.welcome + user.username, Toast.LENGTH_SHORT).show();
         } else {
             // 如果没有 Intent 数据，也应该退出或跳转回登录页
             Toast.makeText(this, "未检测到登录信息，请重新登录。", Toast.LENGTH_LONG).show();
@@ -79,6 +77,25 @@ public class MainActivity extends AppCompatActivity {
         if (actionBar != null) {
             actionBar.hide();
         }
+
+        // 🌟 新增：悬浮按钮 (FAB) 的逻辑 🌟
+        FloatingActionButton fab = findViewById(R.id.fab_selection_tasks);
+
+        // 设置 FAB 的点击事件监听器
+        // 假设您的 TaskSelectionBottomSheet 已经包含在项目中
+        fab.setOnClickListener(v -> {
+            showTaskSelectionSheet();
+        });
+    }
+
+    /**
+     * 显示 AI 任务选择底部的弹窗
+     */
+    private void showTaskSelectionSheet() {
+        // 确保 TaskSelectionBottomSheet 已经被正确定义和导入
+        TaskSelectionBottomSheet bottomSheet = new TaskSelectionBottomSheet();
+        // 使用 getSupportFragmentManager() 来显示 BottomSheetDialogFragment
+        bottomSheet.show(getSupportFragmentManager(), TaskSelectionBottomSheet.TAG);
     }
 
     /**

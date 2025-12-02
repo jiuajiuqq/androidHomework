@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase;
 
 import com.example.Android_bigWork.Entity.Feedback; // 确保导入 Feedback 实体
 
-@Database(entities = {Feedback.class}, version = 2, exportSchema = false)
+@Database(entities = {Feedback.class}, version = 3, exportSchema = false)
 public abstract class FeedbackDatabase extends RoomDatabase {
 
     public abstract FeedbackDao feedbackDao();
