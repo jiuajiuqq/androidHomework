@@ -12,7 +12,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="航味 2.0"
+        android:text="航味食堂"
         android:textSize="48sp"
         android:textStyle="bold"
         android:textColor="@android:color/white"
