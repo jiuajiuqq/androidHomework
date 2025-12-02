@@ -1,14 +1,19 @@
 package com.example.myapplication.Activity;
 
 import android.os.Bundle;
+import android.util.Log; // 导入 Log 类用于日志输出
 import android.view.MenuItem;
+import android.widget.Toast; // 导入 Toast 类用于用户反馈
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+// 导入 FloatingActionButton 所需的类
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import com.example.myapplication.Fragment.MenuConfigFragment;
 import com.example.myapplication.Fragment.OperationAdjustFragment;
 import com.example.myapplication.Fragment.UserFeedbackFragment;
@@ -16,11 +21,15 @@ import com.example.myapplication.R;
 
 public class AdminMainActivity extends AppCompatActivity {
 
+    // 定义日志标签，方便 Logcat 过滤
+    private static final String TAG = "AdminMainActivity";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_admin_main); // 沿用上一个activity_admin_main.xml布局
+        setContentView(R.layout.activity_admin_main);
 
+        // 1. 底部导航栏逻辑 (保留原有代码)
         BottomNavigationView bottomNavigationView = findViewById(R.id.admin_bottom_navigation);
 
         // 默认加载第一个 Fragment
@@ -49,10 +58,24 @@ public class AdminMainActivity extends AppCompatActivity {
                 return false;
             }
         });
+
+        // 🌟 修改：悬浮按钮 (FAB) 的逻辑 🌟
+        FloatingActionButton fab = findViewById(R.id.fab_selection_tasks);
+
+        // 设置 FAB 的点击事件监听器
+        fab.setOnClickListener(v -> {
+            // 替换之前的 executeOptionalTasks()
+            showTaskSelectionSheet();
+        });
+    }
+    private void showTaskSelectionSheet() {
+        TaskSelectionBottomSheet bottomSheet = new TaskSelectionBottomSheet();
+        // 使用 getSupportFragmentManager() 来显示 BottomSheetDialogFragment
+        bottomSheet.show(getSupportFragmentManager(), TaskSelectionBottomSheet.TAG);
     }
 
     /**
-     * 替换 Fragment 到容器
+     * 替换 Fragment 到容器 (保留原有代码)
      */
     private void loadFragment(Fragment fragment) {
         getSupportFragmentManager()
@@ -60,4 +83,5 @@ public class AdminMainActivity extends AppCompatActivity {
                 .replace(R.id.admin_fragment_container, fragment)
                 .commit();
     }
+
 }
