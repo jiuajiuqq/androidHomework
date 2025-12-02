@@ -25,6 +25,14 @@ public class Dish implements Serializable {     // 菜品类
     private boolean sweet;  // 甜味是否可选
     private int count;  // 选购份数
 
+    // 所属窗口ID
+    public int windowId;
+    // 菜品图片路径
+    public String imageUrl;
+    // 是否在售
+    public boolean isAvailable;
+    // 菜品余量/库存
+    public int remainingStock;
     // 【新增字段】: 使用 @Ignore 告诉 Room 这个字段不属于 dish_table 表
     @Ignore
     private int totalSales;
@@ -33,7 +41,10 @@ public class Dish implements Serializable {     // 菜品类
 
     }
 
-    public Dish(int gid, String name, String description, double price, String category, int CID, boolean spicy, boolean sweet) {
+    public Dish(int gid, String name, String description,
+                double price, String category, int CID,
+                boolean spicy, boolean sweet,
+                int windowId, String imageUrl, boolean isAvailable, int remainingStock) {
         this.GID = gid;
         this.name = name;
         this.description = description;
@@ -43,6 +54,10 @@ public class Dish implements Serializable {     // 菜品类
         this.spicy = spicy;
         this.sweet = sweet;
         this.count = 0;
+        this.windowId = windowId;
+        this.imageUrl = imageUrl;
+        this.isAvailable = isAvailable;
+        this.remainingStock = remainingStock;
     }
     public int getTotalSales() {
         return totalSales;
@@ -130,7 +145,17 @@ public class Dish implements Serializable {     // 菜品类
     public void setCustomizable(boolean customizable) {
         this.customizable = customizable;
     }
+    public int getWindowId() { return windowId; }
+    public void setWindowId(int windowId) { this.windowId = windowId; }
 
+    public String getImageUrl() { return imageUrl; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+
+    public boolean isAvailable() { return isAvailable; }
+    public void setAvailable(boolean available) { isAvailable = available; }
+
+    public int getRemainingStock() { return remainingStock; }
+    public void setRemainingStock(int remainingStock) { this.remainingStock = remainingStock; }
     @Override
     public String toString() {
         return "Dish{" +

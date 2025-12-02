@@ -415,7 +415,7 @@ public class DishMenuFragment extends Fragment {
                             if (popularDishes != null) {
                                 for (PopularDish pd : popularDishes) {
                                     // 实例化 Dish 并赋值
-                                    Dish dish = new Dish(pd.GID, pd.name, pd.description, pd.price, pd.category, pd.CID, pd.spicy, pd.sweet);
+                                    Dish dish = new Dish(pd.GID, pd.name, pd.description, pd.price, pd.category, pd.CID, pd.spicy, pd.sweet,pd.windowId,pd.imageUrl,pd.isAvailable,pd.remainingStock);
                                     // 假设 Dish 中有 setTotalSales 方法，并调用它来存储销量
                                     dish.setTotalSales(pd.totalSales);
                                     dishesToShow.add(dish);

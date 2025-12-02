@@ -14,6 +14,13 @@ public class PopularDish {
     public boolean customizable;
     public boolean spicy;
     public boolean sweet;
+    public int windowId;
+    // 菜品图片路径
+    public String imageUrl;
+    // 是否在售
+    public boolean isAvailable;
+    // 菜品余量/库存
+    public int remainingStock;
 
     // 【新增】: 接收 SQL 语句中的 AS totalSales
     public int totalSales;

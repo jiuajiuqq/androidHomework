@@ -85,7 +85,7 @@ public class SignUpActivity extends AppCompatActivity
                                 @Override
                                 public void onCompleted(BaseDialog dialog, String payPassword) {
                                     //添加用户
-                                    Person person = new Person(username, password, Long.parseLong(phoneNumber), isFemale[0], Integer.parseInt(payPassword));
+                                    Person person = new Person(username, password, "user",System.currentTimeMillis(),Long.parseLong(phoneNumber), isFemale[0], Integer.parseInt(payPassword));
                                     personDao.insert(person);
                                     mSignUpButton.showSucceed();
                                     Log.d(TAG, "onSignUp: " + person.toString());

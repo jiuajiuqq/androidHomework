@@ -12,7 +12,7 @@ import com.example.Android_bigWork.Entity.UserDish;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@Database(entities = {UserDish.class, Dish.class}, version = 4, exportSchema = false)
+@Database(entities = {UserDish.class, Dish.class}, version = 5, exportSchema = false)
 public abstract class UserDishDatabase extends RoomDatabase {
 
     public abstract UserDishDao userDishDao();
