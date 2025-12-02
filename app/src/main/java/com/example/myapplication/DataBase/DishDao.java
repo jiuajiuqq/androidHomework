@@ -14,6 +14,17 @@ import java.util.List;
 @Dao
 public interface DishDao {
     // --- 基本 CRUD 操作 ---
+    /**
+     * 获取所有菜品，按ID升序排列
+     */
+    @Query("SELECT * FROM dish_table ORDER BY CID")
+    List<Dish> getAllDish();
+
+    /**
+     * 清除所有菜品 (谨慎使用)
+     */
+    @Query("DELETE FROM dish_table")
+    void deleteAllDish();
 
     /**
      * 添加菜品 (管理端功能)
@@ -33,24 +44,23 @@ public interface DishDao {
     @Delete
     void delete(Dish dish);
 
-    /**
-     * 清除所有菜品 (谨慎使用)
-     */
-    @Query("DELETE FROM dish_table")
-    void deleteAllDish();
+
 
     // --- 查询与统计 ---
 
-    /**
-     * 获取所有菜品，按ID升序排列
-     */
-    @Query("SELECT * FROM dish_table ORDER BY dishId ASC")
-    List<Dish> getAllDish();
+    @Query("SELECT * FROM dish_table WHERE name = :name")
+    Dish getDishByName(String name);
+
+    @Query("SELECT * FROM dish_table WHERE category = :category")
+    List<Dish> getDishByCategory(String category);
+
+    @Query("SELECT COUNT(*) FROM dish_table")
+    int getDishCount();
 
     /**
      * 根据菜品ID获取单个菜品信息
      */
-    @Query("SELECT * FROM dish_table WHERE dishId = :dishId LIMIT 1")
+    @Query("SELECT * FROM dish_table WHERE GID = :dishId LIMIT 1")
     Dish getDishById(int dishId);
 
     /**
@@ -68,8 +78,6 @@ public interface DishDao {
      * @param category 菜品分类 (如：早餐、正餐)
      * @return 某分类下的所有菜品
      */
-    @Query("SELECT * FROM dish_table WHERE category = :category")
-    List<Dish> getDishByCategory(String category);
 
     /**
      * 返回某个窗口下的所有菜品信息
@@ -80,15 +88,9 @@ public interface DishDao {
     @Query("SELECT * FROM dish_table WHERE windowId = :windowId AND isAvailable = 1")
     List<Dish> getAvailableDishByWindow(int windowId);
 
-    /**
-     * 返回菜品总数
-     */
-    @Query("SELECT COUNT(*) FROM dish_table")
-    int getDishCount();
-
     @Query("SELECT * FROM dish_table")
     List<Dish> getAllDishes();
 
-    @Query("SELECT * FROM dish_table WHERE name LIKE :query OR description LIKE :query OR category LIKE :query ORDER BY dishId ASC")
+    @Query("SELECT * FROM dish_table WHERE name LIKE :query OR description LIKE :query OR category LIKE :query ORDER BY GID ASC")
     List<Dish> searchDishes(String query);
 }

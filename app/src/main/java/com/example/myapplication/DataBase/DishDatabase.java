@@ -8,7 +8,7 @@ import androidx.room.RoomDatabase;
 
 import com.example.myapplication.Entity.Dish;
 
-@Database(entities = {Dish.class}, version = 2, exportSchema = false)
+@Database(entities = {Dish.class}, version = 7, exportSchema = false)
 public abstract class DishDatabase extends RoomDatabase {
     private static final String DB_NAME = "dish.db";
     private static DishDatabase INSTANCE;
@@ -31,5 +31,7 @@ public abstract class DishDatabase extends RoomDatabase {
         return INSTANCE;
     }
 
-    public abstract DishDao dishDao(); // 对应前面定义的 DishDao 接口
+    public abstract DishDao getDishDao();
+
+    // 对应前面定义的 DishDao 接口
 }

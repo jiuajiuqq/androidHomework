@@ -63,7 +63,7 @@ public class DishCrudDialogFragment extends DialogFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        dishDao = DishDatabase.getDatabase(getContext()).dishDao();
+        dishDao = DishDatabase.getDatabase(getContext()).getDishDao();
         windowDao = WindowDatabase.getDatabase(getContext()).windowDao();
 
         if (getArguments() != null) {
@@ -202,7 +202,7 @@ public class DishCrudDialogFragment extends DialogFragment {
                     // 【新增 (Create) 逻辑】
                     // 假设 Dish 构造函数：Dish(windowId, name, price, description, category, imageUrl, isAvailable)
                     // 暂无 imageUrl 字段，传空字符串
-                    Dish newDish = new Dish(windowId, name, price, description, category, "", isAvailable, 10);
+                    Dish newDish = new Dish(windowId, name, description, price, category, 1,true,true,windowId,null, isAvailable, 10);
                     dishDao.insert(newDish);
                 } else {
                     // 【修改 (Update) 逻辑】

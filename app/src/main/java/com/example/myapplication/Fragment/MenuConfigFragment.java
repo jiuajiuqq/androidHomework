@@ -5,8 +5,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.Toast;
 
 import android.content.res.ColorStateList; // 导入 ColorStateList
 import androidx.core.content.ContextCompat; // 导入 ContextCompat
@@ -104,7 +102,7 @@ public class MenuConfigFragment extends Fragment implements CanteenAdapter.OnCan
         // 实例化 DAO
         canteenDao = CarteenDatabase.getDatabase(getContext()).canteenDao();
         windowDao = WindowDatabase.getDatabase(getContext()).windowDao();
-        dishDao = DishDatabase.getDatabase(getContext()).dishDao();
+        dishDao = DishDatabase.getDatabase(getContext()).getDishDao();
 
         initListeners();
         switchMode(DisplayMode.CANTEEN); // 默认加载食堂列表

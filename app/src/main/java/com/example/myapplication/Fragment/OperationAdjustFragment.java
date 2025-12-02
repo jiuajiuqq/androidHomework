@@ -40,7 +40,7 @@ public class OperationAdjustFragment extends Fragment implements AdjustAdapter.A
         recyclerView = view.findViewById(R.id.rv_dish_adjust_list);
 
         // 实例化 DAO
-        dishDao = DishDatabase.getDatabase(getContext()).dishDao();
+        dishDao = DishDatabase.getDatabase(getContext()).getDishDao();
         // 移除 StockDao 实例化
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
