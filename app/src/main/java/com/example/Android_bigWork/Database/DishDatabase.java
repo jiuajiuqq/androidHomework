@@ -14,7 +14,7 @@ import com.example.Android_bigWork.Entity.UserDish;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors; // 确保导入
 
-@Database(entities = {Dish.class, Comment.class, Favorite.class, UserDish.class}, version = 8, exportSchema = false)
+@Database(entities = {Dish.class, Comment.class, Favorite.class, UserDish.class}, version = 9, exportSchema = false)
 public abstract class DishDatabase extends RoomDatabase {
     private static final String DB_NAME = "dish.db";
     private static DishDatabase INSTANCE;
